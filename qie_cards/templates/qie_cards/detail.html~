@@ -1,0 +1,67 @@
+{% extends "qie_cards/base.html" %}
+{% load app_filters %}
+
+{% block title %}{{card.card_id}}{% endblock %}
+
+{% block links %}
+<a href="../catalog"><button>Catalog</button></a>
+<a href="../summary"><button>Summary</button></a>
+<a href="../testers"><button>Testers</button></a>
+<a href="../setup"><button>Setup</button></a>
+<a href="../stats"><button>Stats</button></a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3" align="center">
+        <h1>Card: {{card.card_id}}</h1>
+        <h3>Location: {{card.location}}</h3>
+    </div>
+</div>
+
+{% for test in attempts %}
+<hr/>
+<div class="row">
+    <div class="col-md-12">
+        <h3>{{test}}</h3>
+        {% for attempt in attempts|get_item:test %}
+        <br>
+        <h4>Attempt: {{attempt.attempt_number}}</h4>
+        <table class="table table-bordered table-striped Portage_table" style="width: 60%; background-color: #F6F6F6;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th colspan="2">Successful?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="{{attempt.get_css_class}}">
+                    <td> {{attempt.tester}} </td>
+                    <td> {{attempt.date_tested}} </td>
+                    {% if attempt.revoked %}
+                    <td><b>Revoked</b>: (see comment) </td>
+                    {% else %}
+                    <td> {{attempt.passed}} </td>
+                    {% endif %}
+                </tr>
+                <tr class="{{attempt.get_css_class}}">
+                    <td><b>Comments:</b></td>
+                    <td colspan="3"> {{attempt.comment | default:"None"}} </td>
+                </tr>
+                <tr class="{{attempt.get_css_class}}">
+                    <td>Image: {% if attempt.has_image %}<a href="{{attempt.image}}">{{attempt.image}}</a>
+                               {% else %} No image {% endif %}</td>
+                    <td colspan="2"><i></i></td>
+                </tr>
+            </tbody>
+        </table>
+        {% if attempt.has_image %}
+        <a href="../media/{{attempt.image}}"><img src="../media/{{attempt.image}}" style="width:66%"></a>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<br/>
+{% endfor %}
+{% endblock %}

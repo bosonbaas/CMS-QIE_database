@@ -1,0 +1,31 @@
+{% extends "qie_cards/base.html" %}
+
+{% block title %}Authorized Tester Database{% endblock %}
+
+{% block content %}
+{% if tester_list %}
+<div class="row">
+	<div class="col-md-12">
+		<table class="table" style="width:650px" align="center">
+			<thead>
+				<tr>
+					<th> Name </th>
+					<th> Email </th>
+				</tr>
+			</thead>
+			<tbody>
+
+				{% for tester in tester_list %}
+				<tr>
+					<td align="left"> {{tester.username}} </td>
+					<td align="left"> {{tester.email}} </td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% else %}
+<h1>No tester database</h1>
+{% endif %}
+{% endblock %}

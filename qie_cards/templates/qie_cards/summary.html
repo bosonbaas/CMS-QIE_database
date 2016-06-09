@@ -1,0 +1,54 @@
+{% extends "qie_cards/base.html" %}
+
+{% block style %}
+ul {
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+}
+{% endblock %}
+
+{% block title %}Card Summary{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-12">
+		<table class="table table-bordered table-responsive" align="center" style="width: 95%; font-size: 12px">
+		<thead>
+			<tr>
+				<th style="background-color: #F0F0F0; font-size: 16px;"> S/N </th>
+				<th colspan="1" style="background-color: #F0F0F0; text-align: center; font-size: 16px;"> Tests Remaining </th>
+				<th colspan="1" style="background-color: #D7FFCA; text-align: center; font-size: 16px;"> Tests Passed </th>
+				<th colspan="1" style="background-color: #FFD4D4; text-align: center; font-size: 16px;"> Tests Failed </th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if card_list %}
+			{% for card in card_list %}
+			<tr style="background-color: #F6F6F6">
+				<td> <a href="{{card.card_id}}">{{card.card_id}}</a></td>
+				<td><ul>
+					{% for test in card.get_remaining %}
+					<li> <a href="setup">{{test.name}}</a></li>
+					{% endfor %}
+				</ul></td>
+				<td><ul>
+					{% for test in card.get_passed %}
+					<li> <a href="setup">{{test.name}}</a></li>
+					{% endfor %}
+				</ul></td>
+				<td><ul>
+					{% for test in card.get_failed %}
+					<li> <a href="setup">{{test.name}}</a></li>
+					{% endfor %}
+				</ul></td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<h1> No card database available </h1>
+			{% endif %}
+		</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "qie_cards/base.html" %}
+
+{% block title %}Test Database{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-12">
+		<table class="table" style="width:95%" align="center">
+		<tbody>
+			<tr>
+				<th> Name </th>
+				<th> Description </th>
+				<th> Required? </th>
+			</tr>
+			{% if test_list %}
+			{% for test in test_list %}
+			<tr align="left">
+				<td> {{test.name}} </td>
+				<td> {{test.description}} </td>
+				<td> {{test.required}} </td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<h1> No test database </h1>
+			{% endif %}
+		</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}
