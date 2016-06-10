@@ -27,13 +27,11 @@ def validate_id(value):
 
     curId = value[(len(value) - 3):]
     sameId = QieCard.objects.filter(card_id__iendswith=curId).exclude(card_id__exact=value)
-    print(sameId)
-    print(len(sameId))
     
     # Last 3 digits of ID must be unique
     if sameId:
         raise ValidationError(
-            ('Card "%(value)s" is already recorded'),
+            _('Card "%(value)s" is already recorded'),
             params={'value':curId},
         )
 
@@ -112,7 +110,7 @@ class Tester(models.Model):
 class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
-    card_id = models.CharField(max_length=7, validators=[validate_id], default="", unique=True, blank=True)
+    card_id = models.CharField(max_length=7, validators=[validate_id], default="NULL", blank=True)
     uid = models.CharField(max_length=17, unique=True, default="")
     geo_loc = models.CharField(max_length=30, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
