@@ -115,6 +115,8 @@ class QieCard(models.Model):
     geo_loc = models.CharField(max_length=30, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    temperature = models.FloatField(default=-999.9)
+    humidity = models.FloatField(default=-999.9)
 
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
@@ -155,7 +157,14 @@ class QieCard(models.Model):
                 testStates.append(test)
         
         return testStates
-        
+
+    def set_temperature(self, t):
+        """ Sets temperature to passed value """
+        temperature = t
+
+    def set_humidity(self, h):
+        """ Sets humidity to passed value """
+        humidty = h
 
     def __str__(self):
        return str(self.card_id)

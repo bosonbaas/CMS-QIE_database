@@ -9,7 +9,7 @@ class AttemptInLine(admin.StackedInline):
     
     model = Attempt
     date_hierarchy = 'date_tested'
-    ordering = ('test_type','date_tested')
+    ordering = ('test_type', 'attempt_number', 'date_tested')
     extra = 0
 
 class QieAdmin(admin.ModelAdmin):

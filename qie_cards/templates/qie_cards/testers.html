@@ -18,7 +18,7 @@
 				{% for tester in tester_list %}
 				<tr>
 					<td align="left"> {{tester.username}} </td>
-					<td align="left"> {{tester.email}} </td>
+					<td align="left"><a href="mailto:{{tester.email}}"> {{tester.email}} </a></td>
 				</tr>
 				{% endfor %}
 			</tbody>

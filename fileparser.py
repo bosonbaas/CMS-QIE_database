@@ -62,7 +62,10 @@ for i in data:
             try:
                 temp_id = raw_input()
                 validate_id(temp_id)
-                done = True
+                if QieCard.objects.filter(card_id=temp_id):
+                    print "ID already in use"
+                else:
+                    done = True
             except ValidationError, e:
                 print "Invalid ID: " + str(e[0])
         #create and save new qie card
@@ -71,6 +74,8 @@ for i in data:
                             plane_loc=i["plane location"],
                             card_id=temp_id)
         temp_card.save()
+    
+    print i["plane location"] + ": " + temp_card.card_id
     #loops through each test to create an event
     #for each test
     for j in i["Tests"]:
