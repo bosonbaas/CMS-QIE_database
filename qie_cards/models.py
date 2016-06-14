@@ -51,7 +51,7 @@ class Test(models.Model):
         failed = []
 
         for card in allCards:
-            if not relatedAttempts.filter(card=card.pk, passed=True) and relatedAttempts.filter(card=card.pk, passed=False):
+            if not relatedAttempts.filter(card=card.pk, num_failed=0) and relatedAttempts.filter(card=card.pk):
                 failed.append(card)
         
         return failed
@@ -94,7 +94,7 @@ class Test(models.Model):
         return percentage   
 
     def __str__(self):
-       return self.name
+        return self.name
 
 
 class Tester(models.Model):
@@ -115,8 +115,6 @@ class QieCard(models.Model):
     geo_loc = models.CharField(max_length=30, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    temperature = models.FloatField(default=-999.9)
-    humidity = models.FloatField(default=-999.9)
 
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
@@ -129,7 +127,7 @@ class QieCard(models.Model):
         passed = []
 
         for test in allTests:
-            if executedTests.filter(test_type=test.pk, passed=True):
+            if executedTests.filter(test_type=test.pk, num_failed=0):
                 passed.append(test)
         
         return passed
@@ -141,7 +139,7 @@ class QieCard(models.Model):
         testStates = []
 
         for test in allTests:
-            if not executedTests.filter(test_type=test.pk, passed=True) and executedTests.filter(test_type=test.pk):
+            if not executedTests.filter(test_type=test.pk, num_failed=0) and executedTests.filter(test_type=test.pk):
                 testStates.append(test)
         
         return testStates
@@ -153,7 +151,7 @@ class QieCard(models.Model):
         testStates = []
 
         for test in allTests:
-            if not executedTests.filter(test_type=test.pk, passed=True) and not executedTests.filter(test_type=test.pk):
+            if not executedTests.filter(test_type=test.pk, num_failed=0) and not executedTests.filter(test_type=test.pk):
                 testStates.append(test)
         
         return testStates
@@ -178,13 +176,19 @@ class Attempt(models.Model):
     attempt_number = models.IntegerField(default=1)
     tester = models.ForeignKey(Tester, on_delete=models.PROTECT)    # the person who enterd this attempt
     date_tested = models.DateTimeField('date tested')
-    passed = models.BooleanField(default=False)
+    num_passed = models.IntegerField(default=-1)
+    num_failed = models.IntegerField(default=-1)
     revoked = models.BooleanField(default=False)
+    temperature = models.FloatField(default=-999.9)
+    humidity = models.FloatField(default=-999.9)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     image = models.ImageField(upload_to="images", default="default.png")
     log_file = models.FileField(upload_to='uploads/%Y-%m-%d/', default='default.png')
     log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
+    def passed_all(self):
+        return (num_failed == 0)
+
     def has_image(self):
         """ This returns whether the attempt has a specified image """
         return (not self.image == "default.png")
@@ -193,7 +197,7 @@ class Attempt(models.Model):
         """ This returns the color which the Attempt template should take """
         if self.revoked:
             return "warning"
-        elif self.passed:
+        elif self.num_failed == 0:
             return "success"
         else:
             return "danger"

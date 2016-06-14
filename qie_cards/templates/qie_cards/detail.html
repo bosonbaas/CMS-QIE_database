@@ -32,7 +32,8 @@
                 <tr>
                     <th>Name</th>
                     <th>Date</th>
-                    <th colspan="2">Successful?</th>
+                    <th>Tests Passed</th>
+                    <th>Tests Failed</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,7 +43,8 @@
                     {% if attempt.revoked %}
                     <td><b>Revoked</b>: (see comment) </td>
                     {% else %}
-                    <td> {{attempt.passed}} </td>
+                    <td> {{attempt.num_passed}} </td>
+                    <td> {{attempt.num_failed}} </td>
                     {% endif %}
                 </tr>
                 <tr class="{{attempt.get_css_class}}">
