@@ -1,6 +1,7 @@
 **.pyc
 **~
 *.sqlite3
-qie_cards/migrations/
+qie_cards/migrations/**
+!qie_cards/migrations/__init__.py
 test.log
 todo
