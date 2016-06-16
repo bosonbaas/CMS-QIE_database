@@ -6,7 +6,7 @@ from django.utils import timezone
 from qie_cards.models import *
 
 #file name of report
-file_name = "Something for now"
+file_name = sys.argv[1]
 
 #open file and load it into dict
 infile = open(file_name, "r")
@@ -22,35 +22,44 @@ geo_loc_set = {"RM1": {"0x19": "J2", "0x1a": "J3", "0x1b": "J4", "0x1c": "J5"},
 try:
     tester = Tester.objects.get(username=data["tester"])
 except:
-    tester = Tester(username=data["tester"], email=noemail@email.com)
+    tester = Tester(username=data["tester"], email="noemail@email.com")
     tester.save()
-del data["tester"]
 
 #load time of test
 test_time = data["timeOfTest"]
-del data["timeOfTest"]
 
 #find or create qie card for database
 try:
-    qie = Qie_Card.objects.get(uid=data["uniqueID"])
-    qie.set_temperature(data["temperature"])
-    qie.set_humidity(data["humidity"])
+    qie = QieCard.objects.get(uid=data["uniqueID"])
 except:
-    qie = Qie_Card(uid=data["uniqueID"], geo_loc="14 floor Wilson Hall",
-                   plane_loc=geo_loc_set["RM1"][data["i2cAddress"]],
-                   temperature=data["temperature"],
-                   humidity=data["humidity"])
+    qie = QieCard(uid=data["uniqueID"], 
+                   plane_loc=geo_loc_set["RM1"][data["i2cAddress"]])
     qie.save()
-del data["uniqueID"]
-del data["i2cAdress"]
-del data["temperature"]
 
+try:
+    location = Location.objects.get(card=qie,
+                                    geo_loc="14th floor Wilson Hall")
+except:
+    location = Location(card=qie, date_received=test_time,
+                        geo_loc="14th floor Wilson Hall")
+    location.save()
 
+flag = True
 #load in all test results
 for test in data.keys():
-    temp_test = Test.objects.get(name=test)
-    prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
-    attempt_num = len(prev_attempts) + 1
-    temp_attempt = Attempt(card=qie, test_type=temp_test, attempt_number=attempt_num,
-                    tester=tester, date_tester=test_time, passed=data[test])
-    temp_attempt.save()
+    if type(data[test]) is type(flag):
+        try:
+            temp_test = Test.objects.get(name=test)
+        except:
+            temp_test = Test(name=test, abbreviation=test,
+                             description="Something")
+            temp_test.save()
+        prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
+        attempt_num = len(prev_attempts) + 1
+        temp_attempt = Attempt(card=qie, test_type=temp_test, attempt_number=attempt_num,
+                               tester=tester, date_tested=test_time, num_passed=data[test],
+                               num_failed=(not data[test]), temperature=data["temperature"],
+                               humidity=data["humidity"])
+        temp_attempt.save()
+
+

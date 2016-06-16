@@ -14,7 +14,7 @@ MAX_COMMENT_LENGTH = 1000        # Constant for max comment length
 
 
 
-def validate_id(value):
+def validate_card_id(value):
     """ This determines whether an input card ID is valid """
     
     # ID must be a string of digits
@@ -31,18 +31,39 @@ def validate_id(value):
     # Last 3 digits of ID must be unique
     if sameId:
         raise ValidationError(
-            _('Card "%(value)s" is already recorded'),
+            ('Card "%(value)s" is already recorded'),
             params={'value':curId},
         )
+        
+
+def validate_uid(uid):
+    """ This determines whether a card UID is valid """
+    
+    parsed = uid.split(":")
+    
+    #UID must have 6 sections
+    if not len(parsed) == 6:
+        raise ValidationError("UID must have six ':'-separated sections")
+        
+    for part in parsed:
+    
+        # All UID sections must have 2 characters
+        if not len(part) == 2:
+            raise ValidationError("Each section must contain two characters")
+        for letter in part:
+            
+            # All characters in the UID must be valid hexadecimal digits
+            if not letter.isdigit() and not (letter.lower() >= 'a' and letter.lower() <= 'f'):
+                raise ValidationError("UID may only contain hexadecimal digits")
 
 
 class Test(models.Model):
     """ This model stores information about each type of test """
     
     name = models.CharField(max_length=100, default="")
-    abbreviation = models.CharField(max_length=100, default="")
+    abbreviation = models.CharField(max_length=100, default="", unique=True)
     description = models.TextField(max_length=1500, default="")
-    required = models.BooleanField(default=False)    
+    required = models.BooleanField(default=True)
 
     def cards_failed(self):
         """ Returns a list of cards which failed on this test """
@@ -51,7 +72,7 @@ class Test(models.Model):
         failed = []
 
         for card in allCards:
-            if not relatedAttempts.filter(card=card.pk, num_failed=0) and relatedAttempts.filter(card=card.pk):
+            if relatedAttempts.filter(card=card.pk, num_failed__gt=0):
                 failed.append(card)
         
         return failed
@@ -75,7 +96,7 @@ class Test(models.Model):
         passed = []
 
         for card in cards:
-            if not card.get_failed():
+            if not card.get_failed() and not card.get_remaining():
                 passed.append(card)
 
         return passed
@@ -110,15 +131,14 @@ class Tester(models.Model):
 class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
-    card_id = models.CharField(max_length=7, validators=[validate_id], default="NULL", blank=True)
-    uid = models.CharField(max_length=17, unique=True, default="")
-    geo_loc = models.CharField(max_length=30, default="")
+    card_id = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
+    uid = models.CharField(max_length=17, validators=[validate_uid], unique=True, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
-        return card_id[(len(card_id) - 3):]
+        return self.card_id[(len(self.card_id) - 3):]
 
     def get_passed(self):
         """ Returns the tests which this card passed """
@@ -127,7 +147,7 @@ class QieCard(models.Model):
         passed = []
 
         for test in allTests:
-            if executedTests.filter(test_type=test.pk, num_failed=0):
+            if not executedTests.filter(test_type=test.pk, num_failed__gt=0) and executedTests.filter(test_type=test.pk):
                 passed.append(test)
         
         return passed
@@ -139,7 +159,7 @@ class QieCard(models.Model):
         testStates = []
 
         for test in allTests:
-            if not executedTests.filter(test_type=test.pk, num_failed=0) and executedTests.filter(test_type=test.pk):
+            if executedTests.filter(test_type=test.pk, num_failed__gt=0):
                 testStates.append(test)
         
         return testStates
@@ -151,18 +171,10 @@ class QieCard(models.Model):
         testStates = []
 
         for test in allTests:
-            if not executedTests.filter(test_type=test.pk, num_failed=0) and not executedTests.filter(test_type=test.pk):
+            if not executedTests.filter(test_type=test.pk):
                 testStates.append(test)
         
         return testStates
-
-    def set_temperature(self, t):
-        """ Sets temperature to passed value """
-        temperature = t
-
-    def set_humidity(self, h):
-        """ Sets humidity to passed value """
-        humidty = h
 
     def __str__(self):
        return str(self.card_id)
@@ -187,7 +199,7 @@ class Attempt(models.Model):
     log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
     def passed_all(self):
-        return (num_failed == 0)
+        return (self.num_failed == 0)
 
     def has_image(self):
         """ This returns whether the attempt has a specified image """
@@ -204,7 +216,22 @@ class Attempt(models.Model):
 
     def __str__(self):
         return str(self.test_type)
+        
 
+class Location(models.Model):
+    """ This model stores information about a particular location where a card has been """
+    
+    card = models.ForeignKey(QieCard, on_delete=models.CASCADE)
+    date_received = models.DateTimeField('date received', default=timezone.now)
+    geo_loc = models.CharField('Location',max_length=200, default="")
+
+# An appendage to the save function
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_save
+
+@receiver(pre_save)
+def pre_save_handler(sender, instance, *args, **kwargs):
+    instance.full_clean()
 
 # An appendage to the delete function
 from django.db.models.signals import pre_delete
