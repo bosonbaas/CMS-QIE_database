@@ -1,7 +1,7 @@
 **.pyc
 **~
 *.json
-*.sqlite3
+*.sqlite3*
 qie_cards/migrations/**
 !qie_cards/migrations/__init__.py
 test.log

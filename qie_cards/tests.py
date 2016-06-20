@@ -241,7 +241,7 @@ class TestTest(TestCase):
         setup()
         test1 = Test.objects.get(abbreviation="test1")
         test2 = Test.objects.get(abbreviation="test2")
-        self.assertEqual(test1.perc_failed(), 100/3.0)
+        self.assertEqual(test1.perc_failed(), 33.3)
         self.assertEqual(test2.perc_failed(), 0)
 
     def test_cards_passed_all(self):
@@ -262,8 +262,8 @@ class TestTest(TestCase):
         setup()
         test1 = Test.objects.get(abbreviation="test1")
         test2 = Test.objects.get(abbreviation="test2")
-        self.assertEqual(test1.perc_passed(), (100/3.0))
-        self.assertEqual(test2.perc_passed(), (100/3.0))
+        self.assertEqual(test1.perc_passed(), 33.3)
+        self.assertEqual(test2.perc_passed(), 33.3)
 
     def returnTrue():
         return True

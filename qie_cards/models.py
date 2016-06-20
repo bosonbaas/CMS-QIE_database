@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
+import os
 from django.db import models
 from django.utils import timezone
 
@@ -88,7 +88,7 @@ class Test(models.Model):
             percentage = (100.0 * Test.num_failed(self)) / total
         else:
             percentage = -1
-        return percentage
+        return round(percentage, 1)
 
     def cards_passed_all(self):
         """ Returns a list of which cards passed all tests """
@@ -112,7 +112,7 @@ class Test(models.Model):
             percentage = (100.0 * Test.num_passed(self)) / total
         else:
             percentage = -1
-        return percentage   
+        return round(percentage, 1)   
 
     def __str__(self):
         return self.name
@@ -180,6 +180,21 @@ class QieCard(models.Model):
        return str(self.card_id)
 
 
+        
+def images_location(upload, original_filename):
+    cardName = str(QieCard.objects.get(pk=upload.card_id).card_id) + "/"
+    testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
+    attemptNum = str(upload.attempt_number) + "/"
+    
+    return os.path.join("images/", cardName, testAbbrev, attemptNum, original_filename)
+    
+def logs_location(upload, original_filename):
+    cardName = str(QieCard.objects.get(pk=upload.card_id).card_id) + "/"
+    testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
+    attemptNum = str(upload.attempt_number) + "/"
+    
+    return os.path.join("uploads/", "user_uploaded_logs/", cardName, testAbbrev, attemptNum, original_filename)
+        
 class Attempt(models.Model):
     """ This model stores information about each testing attempt """
 
@@ -194,8 +209,8 @@ class Attempt(models.Model):
     temperature = models.FloatField(default=-999.9)
     humidity = models.FloatField(default=-999.9)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    image = models.ImageField(upload_to="images", default="default.png")
-    log_file = models.FileField(upload_to='uploads/%Y-%m-%d/', default='default.png')
+    image = models.ImageField(upload_to=images_location, default="default.png")
+    log_file = models.FileField(upload_to=logs_location, default='default.png')
     log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
     def passed_all(self):
@@ -213,6 +228,7 @@ class Attempt(models.Model):
             return "success"
         else:
             return "danger"
+            
 
     def __str__(self):
         return str(self.test_type)
