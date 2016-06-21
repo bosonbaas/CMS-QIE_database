@@ -1,11 +1,11 @@
 #!/bin/bash
 
-commonPath=/home/hep/abaas/testing_database
+commonPath=$(dirname $0)/..
 dbPath=$commonPath/card_db/
 backupPath=$commonPath/backup/daily_backup/
 mediaPath=$commonPath
 
-remoteBackup=/home/hep/abaas/testing_database/backup/daily_backup/
+remoteBackup=$backupPath
 remoteSSH=hep@cmshcal12
 
 ###################################################
