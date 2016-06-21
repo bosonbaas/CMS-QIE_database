@@ -2,7 +2,9 @@
 **~
 *.json
 *.sqlite3*
-qie_cards/migrations/**
-!qie_cards/migrations/__init__.py
-test.log
-todo
+card_db/qie_cards/migrations/**
+!card_db/qie_cards/migrations/__init__.py
+card_db/test.log
+card_db/todo
+media
+**.tar.gz
