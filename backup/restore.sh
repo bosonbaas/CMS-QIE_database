@@ -1,7 +1,7 @@
 #!/bin/bash
 
-commonPath=/home/hep/abaas/testing_database
-
+scriptLoc=$(readlink -f $(dirname $0) )
+commonPath=${scriptLoc%/*}
 dbPath=$commonPath
 dbName=card_db
 
@@ -32,9 +32,6 @@ fi
 mkdir $tempPath
 
 tar -xz -C $tempPath -f $filePath
-
-cp -r $dbPath/$dbName/.git/ $tempPath/$dbName/.git/
-cp $dbPath/$dbName/.gitignore $tempPath/$dbName/.gitignore
 
 ###################################################
 #            Sync to Database                     #

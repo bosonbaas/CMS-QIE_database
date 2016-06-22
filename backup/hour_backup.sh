@@ -23,7 +23,7 @@ tar -zcf $dest.tar.gz -C $mediaPath $media -C $commonPath card_db --exclude .git
 
 # Delete old databases
 numBack=$(($(ls -l $backupPath | wc -l) - 1))
-expTime=2940
+expTime=2820
 findOpt="-cmin +$expTime -delete"
 if (( $numBack > 24 ))
   then
