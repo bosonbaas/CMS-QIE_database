@@ -6,11 +6,14 @@ from django.utils import timezone
 from qie_cards.models import *
 
 #file name of report
-file_name = sys.argv[1]
+fileName = sys.argv[1]
 
 #open file and load it into dict
-infile = open(file_name, "r")
-data = json.load(infile)
+infile = open(fileName, "r")
+
+data = infile
+
+cardData = json.load(data)
 
 #dict for plane location
 geo_loc_set = {"RM1": {"0x19": "J2", "0x1a": "J3", "0x1b": "J4", "0x1c": "J5"},
@@ -20,46 +23,41 @@ geo_loc_set = {"RM1": {"0x19": "J2", "0x1a": "J3", "0x1b": "J4", "0x1c": "J5"},
 
 #find or create tester account
 try:
-    tester = Tester.objects.get(username=data["tester"])
+    tester = Tester.objects.get(username=data["Tester"])
 except:
-    tester = Tester(username=data["tester"], email="noemail@email.com")
-    tester.save()
+    print 'Tester "%(name)"  not valid' % {'name': data["Tester"]}
+    sys.exit('Tester "%(name)"  not valid' % {'name': data["Tester"]}) 
 
 #load time of test
-test_time = data["timeOfTest"]
+test_time = data["DateRun"]
 
 #find or create qie card for database
 try:
-    qie = QieCard.objects.get(uid=data["uniqueID"])
+    qie = QieCard.objects.get(uid=data["Unique_ID"])
 except:
-    qie = QieCard(uid=data["uniqueID"], 
-                   plane_loc=geo_loc_set["RM1"][data["i2cAddress"]])
-    qie.save()
+    print 'QIE card with UID "%(uid)" not in database' % {'uid': data["Unique_ID"]}
+    sys.exit('QIE card with UID "%(uid)" not in database' % {'uid': data["Unique_ID"]})
 
-try:
-    location = Location.objects.get(card=qie,
-                                    geo_loc="14th floor Wilson Hall")
-except:
-    location = Location(card=qie, date_received=test_time,
-                        geo_loc="14th floor Wilson Hall")
-    location.save()
-
-flag = True
 #load in all test results
-for test in data.keys():
-    if type(data[test]) is type(flag):
-        try:
-            temp_test = Test.objects.get(name=test)
-        except:
-            temp_test = Test(name=test, abbreviation=test,
-                             description="Something")
-            temp_test.save()
-        prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
-        attempt_num = len(prev_attempts) + 1
-        temp_attempt = Attempt(card=qie, test_type=temp_test, attempt_number=attempt_num,
-                               tester=tester, date_tested=test_time, num_passed=data[test],
-                               num_failed=(not data[test]), temperature=data["temperature"],
-                               humidity=data["humidity"])
-        temp_attempt.save()
+for test in bridgeData.keys():
+    try:
+        temp_test = Test.objects.get(name=test)
+    except:
+        print 'Test "%(name)" not in database' % {'name': test}
+        sys.exit('Test "%(name)" not in database' % {'name': test})
+    
+    prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
+    attempt_num = len(prev_attempts) + 1
+    temp_attempt = Attempt(card=qie,
+                           test_type=temp_test,
+                           attempt_number=attempt_num,
+                           tester=tester,
+                           date_tested=test_time,
+                           num_passed=data[test][0],
+                           num_failed=data[test][1],
+                           temperature=data["temperature"],
+                           humidity=data["humidity"]
+                           )
+    temp_attempt.save()
 
 

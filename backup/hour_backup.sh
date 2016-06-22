@@ -1,6 +1,7 @@
 #!/bin/bash
 
-commonPath=$(dirname $0)/..
+scriptLoc=$(readlink -f $(dirname $0) )
+commonPath=${scriptLoc%/*}
 dbPath=$commonPath/card_db/
 backupPath=$commonPath/backup/temp_backup/
 mediaPath=$commonPath
