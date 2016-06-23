@@ -34,9 +34,9 @@ geo_loc_set = {"RM1": {"0x19": "J2", "0x1a": "J3", "0x1b": "J4", "0x1c": "J5"},
 
 #find or create tester account
 try:
-    tester = Tester.objects.get(username=cardData["Tester"])
+    tester = Tester.objects.get(username=cardData["User"])
 except:
-    print("Tester %s not valid" % cardData["Tester"])
+    print("Tester %s not valid" % cardData["User"])
     sys.exit("Invalid Tester") 
 
 #load time of test
@@ -51,7 +51,7 @@ except:
 
 #load in all test results
 for test in cardData.keys():
-    if(test != "DateRun" and test != "Unique_ID" and test != "Barcode" and test != "Tester"):
+    if(test != "DateRun" and test != "Unique_ID" and test != "Barcode" and test != "User"):
         try:
             temp_test = Test.objects.get(name=test)
         except:
@@ -60,16 +60,18 @@ for test in cardData.keys():
     
         prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
         attempt_num = len(prev_attempts) + 1
-        if(cardData[test]):
+        if(cardData[test][0] == 0 and cardData[test][1] == 0): 
             temp_attempt = Attempt(card=qie,
                                    test_type=temp_test,
                                    attempt_number=attempt_num,
                                    tester=tester,
                                    date_tested=test_time,
-                                   num_passed=cardData[test][0],
-                                   num_failed=cardData[test][1],
-                                   temperature=cardData["Temperature"][1],
-                                   humidity=cardData["Humidity"][1]
+                                   num_passed=0,
+                                   num_failed=0,
+                                   temperature=float(cardData["Temperature"]),
+                                   humidity=float(cardData["Humidity"]),
+                                   revoked=True,
+                                   comments="This test returned no testing data"
                                    )
         else:
             temp_attempt = Attempt(card=qie,
@@ -77,10 +79,10 @@ for test in cardData.keys():
                                    attempt_number=attempt_num,
                                    tester=tester,
                                    date_tested=test_time,
-                                   num_passed=0,
-                                   num_failed=1,
-                                   temperature=cardData["Temperature"][1],
-                                   humidity=cardData["Humidity"][1]
+                                   num_passed=cardData[test][0],
+                                   num_failed=cardData[test][1],
+                                   temperature=float(cardData["Temperature"]),
+                                   humidity=float(cardData["Humidity"])
                                    )
             
         temp_attempt.save()

@@ -4,11 +4,10 @@ scriptLoc=$(readlink -f $(dirname $0) )
 jsonStore=$scriptLoc/temp_json
 
 remoteHost=cmshcal12
-remoteLoc=/home/hep/abaas/json_storage
+remoteLoc=/home/hep/tempJsonResults
 
 fileList=$(ssh $remoteHost ls $remoteLoc)
 
-echo $fileList
 mkdir $jsonStore
 
 rsync -av $remoteHost:$remoteLoc/ $jsonStore
@@ -17,10 +16,10 @@ ssh $remoteHost rm $remoteLoc/*.json
 
 for file in $fileList
 do
-    localFile=$jsonStore/$file
-    remoteFile=$remoteLoc/$file
+    filePath=$jsonStore/$file
+    echo $filePath   
 
-#    python $scriptLoc/jsonparser.py $localFile
+    python $scriptLoc/jsonparser.py $filePath
 done
 
-#rm -r $jsonStore
+rm -r $jsonStore

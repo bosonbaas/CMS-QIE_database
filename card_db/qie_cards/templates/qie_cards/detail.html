@@ -33,7 +33,10 @@
                     <th>Name</th>
                     <th>Date</th>
                     <th>Tests Passed</th>
+                     
+                    {% if not attempt.revoked %}
                     <th>Tests Failed</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -49,17 +52,17 @@
                 </tr>
                 <tr class="{{attempt.get_css_class}}">
                     <td><b>Comments:</b></td>
-                    <td colspan="3"> {{attempt.comment | default:"None"}} </td>
+                    <td colspan="3"> {{attempt.comments | default:"None"}} </td>
                 </tr>
                 <tr class="{{attempt.get_css_class}}">
-                    <td>Image: {% if attempt.has_image %}<a href="../media/{{attempt.image}}">{{attempt.image}}</a>
-                               {% else %} No image {% endif %}</td>
-                    <td colspan="2"><i></i></td>
+                    <td><b>Image:</b></td> 
+                    <td colspan="3">{% if attempt.has_image %}<a href="../media/{{attempt.image}}">{{attempt.image}}</a>
+                                    {% else %} No image {% endif %}</td>
                 </tr>
                 <tr class="{{attempt.get_css_class}}">
-                    <td>Attachement: {% if attempt.has_image %}<a href="../media/{{attempt.log_file}}">{{attempt.log_file}}</a>
-                               {% else %} No file {% endif %}</td>
-                    <td colspan="2"><i></i></td>
+                    <td><b>Log Files:</b></td>
+                    <td colspan="3">{% if attempt.has_image %}<a href="../media/{{attempt.log_file}}">{{attempt.log_file}}</a>
+                                    {% else %} No file {% endif %}</td>
                 </tr>
             </tbody>
         </table>
