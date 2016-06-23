@@ -1,7 +1,7 @@
 {% extends "qie_cards/base.html" %}
 {% load app_filters %}
 
-{% block title %}{{card.card_id}}{% endblock %}
+{% block title %}{{card.barcode}}{% endblock %}
 
 {% block links %}
 <a href="../catalog"><button>Catalog</button></a>
@@ -14,7 +14,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md-3" align="center">
-        <h1>Card: {{card.card_id}}</h1>
+        <h1>Card: {{card.barcode}}</h1>
         <h3>Location: {{card.geo_loc}}</h3>
     </div>
 </div>

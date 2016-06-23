@@ -17,11 +17,11 @@ ul {
 	</div>
 </div>
 <br><br>	
-{% if card_id_list %}
+{% if barcode_list %}
 <div class="row">
 	<div align="center"><ul>
-	{% for card in card_id_list %}
-		<li style="font-size:18px"><a href="{{card.card_id}}">{{card.card_id}}</a></li>
+	{% for card in barcode_list %}
+		<li style="font-size:18px"><a href="{{card.barcode}}">{{card.barcode}}</a></li>
 	{%endfor%}
 	</ul></div>
 </div>

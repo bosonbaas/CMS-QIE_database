@@ -33,7 +33,7 @@ ul {
 			<tr align="left">
 				<td><ul style="font-size:10px">
 				{% for card in c.test_inst.cards_passed_all %}
-				<li><a href="{{card.card_id}}">{{card.card_id}}</a></li>
+				<li><a href="{{card.barcode}}">{{card.barcode}}</a></li>
 				{% endfor %}
 				</ul></td>
 				<td> {{c.test_inst.num_passed}} </td>
@@ -73,7 +73,7 @@ ul {
 				<td> {{test.name}} </td>
 				<td><ul style="font-size:10px">
 				{% for card in test.cards_failed %}
-				<li><a href="{{card.card_id}}">{{card.card_id}}</a></li>
+				<li><a href="{{card.barcode}}">{{card.barcode}}</a></li>
 				{% endfor %}
 				</ul></td>
 				<td> {{test.num_failed}} </td>

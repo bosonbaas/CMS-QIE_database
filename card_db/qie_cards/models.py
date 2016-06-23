@@ -26,7 +26,7 @@ def validate_card_id(value):
         raise ValidationError('ID must be 7 digits long')
 
     curId = value[(len(value) - 3):]
-    sameId = QieCard.objects.filter(card_id__iendswith=curId).exclude(card_id__exact=value)
+    sameId = QieCard.objects.filter(barcode__iendswith=curId).exclude(barcode__exact=value)
     
     # Last 3 digits of ID must be unique
     if sameId:
@@ -131,14 +131,14 @@ class Tester(models.Model):
 class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
-    card_id = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
+    barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
     uid = models.CharField(max_length=17, validators=[validate_uid], unique=True, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
-        return self.card_id[(len(self.card_id) - 3):]
+        return self.barcode[(len(self.barcode) - 3):]
 
     def get_passed(self):
         """ Returns the tests which this card passed """
@@ -177,19 +177,19 @@ class QieCard(models.Model):
         return testStates
 
     def __str__(self):
-       return str(self.card_id)
+       return str(self.barcode)
 
 
         
 def images_location(upload, original_filename):
-    cardName = str(QieCard.objects.get(pk=upload.card_id).card_id) + "/"
+    cardName = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
     testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
     attemptNum = str(upload.attempt_number) + "/"
     
     return os.path.join("images/", cardName, testAbbrev, attemptNum, original_filename)
     
 def logs_location(upload, original_filename):
-    cardName = str(QieCard.objects.get(pk=upload.card_id).card_id) + "/"
+    cardName = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
     testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
     attemptNum = str(upload.attempt_number) + "/"
     

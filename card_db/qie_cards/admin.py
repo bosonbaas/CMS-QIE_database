@@ -26,13 +26,13 @@ class QieAdmin(admin.ModelAdmin):
     """ Provides the layour for QieCard editing """
     
     fiedsets = [
-        ('QIE information', {'fields': ['card_id', 'uid', 'geo_loc', 'plane_loc', 'comments']}),
+        ('QIE information', {'fields': ['barcode', 'uid', 'geo_loc', 'plane_loc', 'comments']}),
     ]
     
     inlines = [AttemptInLine, LocationsInLine]
-    list_display = ('card_id', 'uid',)
-    ordering = ('card_id', 'uid',)
-    searchfields = ('card_id')
+    list_display = ('barcode', 'uid',)
+    ordering = ('barcode', 'uid',)
+    searchfields = ('barcode')
 
 
 # Registration of the models

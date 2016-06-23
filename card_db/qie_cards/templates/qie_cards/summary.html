@@ -26,7 +26,7 @@ ul {
 			{% if card_list %}
 			{% for card in card_list %}
 			<tr style="background-color: #F6F6F6">
-				<td> <a href="{{card.card_id}}">{{card.card_id}}</a></td>
+				<td> <a href="{{card.barcode}}">{{card.barcode}}</a></td>
 				<td><ul>
 					{% for test in card.get_remaining %}
 					<li> <a href="setup">{{test.name}}</a></li>

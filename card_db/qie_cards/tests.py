@@ -6,19 +6,19 @@ from django.utils import timezone
 
 def setup():
     card1 = QieCard.objects.create(
-                card_id="9900001",
+                barcode="9900001",
                 uid="01:23:45:67:89:aF",
                 plane_loc = "J26",
                 comments="This is a QieCard"
                 )
     card2 = QieCard.objects.create(
-                card_id="9900002",
+                barcode="9900002",
                 uid="00:00:00:ea:fa:01",
                 plane_loc = "J25",
                 comments="This is another QieCard"
                 )
     card3 = QieCard.objects.create(
-                card_id="9900003",
+                barcode="9900003",
                 uid="00:00:00:ea:fa:03",
                 plane_loc = "J24",
                 comments="This is yet another QieCard"
@@ -270,12 +270,12 @@ class TestTest(TestCase):
     
 
 class QieCardTest(TestCase):
-    def test_card_id_validation(self):
+    def test_barcode_validation(self):
         setup()
         with self.assertRaisesMessage(ValidationError,
                 "ID must only contain numbers"):
             QieCard.objects.create(
-                    card_id="9a00000",
+                    barcode="9a00000",
                     uid="01:23:45:67:89:ab",
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -283,7 +283,7 @@ class QieCardTest(TestCase):
         with self.assertRaisesMessage(ValidationError,
                 "ID must be 7 digits long"):
             QieCard.objects.create(
-                    card_id="90000000",
+                    barcode="90000000",
                     uid="01:23:45:67:89:ab",
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -291,14 +291,14 @@ class QieCardTest(TestCase):
         with self.assertRaisesMessage(ValidationError,
                 'Card "001" is already recorded'):
             QieCard.objects.create(
-                    card_id="9000001",
+                    barcode="9000001",
                     uid="01:23:45:67:89:ab",
                     plane_loc = "J26",
                     comments="This is a QieCard"
                     )
         with self.assertRaisesMessage(ValidationError, 'exists'):
             QieCard.objects.create(
-                    card_id="9900001",
+                    barcode="9900001",
                     uid="01:23:45:67:89:ab",
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -309,7 +309,7 @@ class QieCardTest(TestCase):
         with self.assertRaisesMessage(ValidationError,
                 "UID must have six ':'-separated sections"):
             QieCard.objects.create(
-                    card_id="9900000",
+                    barcode="9900000",
                     uid="01:23:45:67:89ab", 
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -317,7 +317,7 @@ class QieCardTest(TestCase):
         with self.assertRaisesMessage(ValidationError,
                 "Each section must contain two characters"):
             QieCard.objects.create(
-                    card_id="9900000",
+                    barcode="9900000",
                     uid="01:23:45:7:89:ab",
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -325,14 +325,14 @@ class QieCardTest(TestCase):
         with self.assertRaisesMessage(ValidationError,
                 'UID may only contain hexadecimal digits'):
             QieCard.objects.create(
-                    card_id="9000001",
+                    barcode="9000001",
                     uid="01:23:45:67:89:aq", 
                     plane_loc = "J26", 
                     comments="This is a QieCard"
                     )
         with self.assertRaisesMessage(ValidationError, 'exists'):
             QieCard.objects.create(
-                    card_id="9000001", 
+                    barcode="9000001", 
                     uid="01:23:45:67:89:aF",
                     plane_loc = "J26",
                     comments="This is a QieCard"
@@ -345,22 +345,22 @@ class QieCardTest(TestCase):
 
     def test_get_passed(self):
         setup()
-        test1 = QieCard.objects.get(card_id="9900001")
-        test2 = QieCard.objects.get(card_id="9900002")
+        test1 = QieCard.objects.get(barcode="9900001")
+        test2 = QieCard.objects.get(barcode="9900002")
         self.assertEqual(len(test1.get_passed()), 1)
         self.assertEqual(len(test2.get_passed()), 1)
 
     def test_get_failed(self):
         setup()
-        test1 = QieCard.objects.get(card_id="9900001")
-        test2 = QieCard.objects.get(card_id="9900002")
+        test1 = QieCard.objects.get(barcode="9900001")
+        test2 = QieCard.objects.get(barcode="9900002")
         self.assertEqual(len(test1.get_failed()), 1)
         self.assertEqual(len(test2.get_failed()), 0)
 
     def test_get_remaining(self):
         setup()
-        test1 = QieCard.objects.get(card_id="9900001")
-        test2 = QieCard.objects.get(card_id="9900002")
+        test1 = QieCard.objects.get(barcode="9900001")
+        test2 = QieCard.objects.get(barcode="9900002")
         self.assertEqual(len(test1.get_remaining()), 0)
         self.assertEqual(len(test2.get_remaining()), 1)
 
@@ -369,8 +369,8 @@ class AttemptTest(TestCase):
 
     def test_passed_all(self):
         setup()
-        card1 = QieCard.objects.get(card_id="9900001")
-        card2 = QieCard.objects.get(card_id="9900002")
+        card1 = QieCard.objects.get(barcode="9900001")
+        card2 = QieCard.objects.get(barcode="9900002")
         test1 = Test.objects.all()[0]
         test2 = Test.objects.all()[1]
         attempt1 = Attempt.objects.get(
@@ -388,8 +388,8 @@ class AttemptTest(TestCase):
 
     def test_has_image(self):
         setup()
-        card1 = QieCard.objects.get(card_id="9900001")
-        card2 = QieCard.objects.get(card_id="9900002")
+        card1 = QieCard.objects.get(barcode="9900001")
+        card2 = QieCard.objects.get(barcode="9900002")
         test1 = Test.objects.all()[0]
         test2 = Test.objects.all()[1]
         attempt1 = Attempt.objects.get(
@@ -407,8 +407,8 @@ class AttemptTest(TestCase):
 
     def test_get_css_class(self):
         setup()
-        card1 = QieCard.objects.get(card_id="9900001")
-        card2 = QieCard.objects.get(card_id="9900002")
+        card1 = QieCard.objects.get(barcode="9900001")
+        card2 = QieCard.objects.get(barcode="9900002")
         test1 = Test.objects.all()[0]
         test2 = Test.objects.all()[1]
         attempt1 = Attempt.objects.get(

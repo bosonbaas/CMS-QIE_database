@@ -12,7 +12,7 @@ class CatalogView(generic.ListView):
     """ This displays a list of all QIE cards """
     
     template_name = 'qie_cards/catalog.html'
-    context_object_name = 'card_id_list'
+    context_object_name = 'barcode_list'
     def get_queryset(self):
         return QieCard.objects.all()
 
@@ -23,7 +23,7 @@ class SummaryView(generic.ListView):
     template_name = 'qie_cards/summary.html'
     context_object_name = 'card_list'
     def get_queryset(self):
-        return QieCard.objects.all().order_by('card_id')
+        return QieCard.objects.all().order_by('barcode')
 
 
 class TestersView(generic.ListView):
@@ -62,7 +62,7 @@ class StatsView(generic.ListView):
 def detail(request, card):
     """ This displays details about tests on a card """
     try:
-        p = QieCard.objects.get(card_id=card)
+        p = QieCard.objects.get(barcode=card)
     except QieCard.DoesNotExist:
         raise Http404("QIE card does not exist")
     tests = Test.objects.all()
