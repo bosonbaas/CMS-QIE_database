@@ -88,6 +88,6 @@ except:
     sys.exit("Invalid Tester") 
 
 #load time of test
-date = cardData["DateRun"]
+date = cardData["DateRun"] + "-06:00"
 
 loadTests(qie, tester, date, cardData["testResults"])

@@ -40,7 +40,7 @@ except:
     sys.exit("Invalid Tester") 
 
 #load time of test
-test_time = cardData["DateRun"]
+test_time = cardData["DateRun"] + "-06:00"
 
 #find or create qie card for database
 try:
@@ -51,7 +51,7 @@ except:
 
 #load in all test results
 for test in cardData.keys():
-    if(test != "DateRun" and test != "Unique_ID" and test != "Barcode" and test != "User"):
+    if(test != "DateRun" and test != "Unique_ID" and test != "Barcode" and test != "User" and test != "TestType"):
         try:
             temp_test = Test.objects.get(name=test)
         except:
