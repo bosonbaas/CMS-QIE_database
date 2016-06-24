@@ -134,6 +134,8 @@ class QieCard(models.Model):
     barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
     uid = models.CharField(max_length=17, validators=[validate_uid], unique=True, default="")
     plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
+    major_ver = models.CharField(max_length=4, default="")
+    min_ver = models.CharField(max_length=4, default="")
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_bar_uid(self):
