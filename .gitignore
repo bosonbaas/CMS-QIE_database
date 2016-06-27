@@ -1,6 +1,7 @@
 **.pyc
 **~
-*.json
+**.json
+**.swp
 *.sqlite3*
 card_db/qie_cards/migrations/**
 !card_db/qie_cards/migrations/__init__.py
