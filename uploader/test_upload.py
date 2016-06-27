@@ -26,18 +26,11 @@ infile = open(fileName, "r")
 
 cardData = json.load(infile)
 
-#dict for plane location
-geo_loc_set = {"RM1": {"0x19": "J2", "0x1a": "J3", "0x1b": "J4", "0x1c": "J5"},
-               "RM2": {"0x19": "J7", "0x1a": "J8", "0x1b": "J9", "0x1c": "J10"},
-               "RM3": {"0x19": "J18", "0x1a": "J19", "0x1b": "J20", "0x1c": "J21"},
-               "RM4": {"0x19": "J23", "0x1a": "J24", "0x1b": "J25", "0x1c": "J26"},}
-
 #find or create tester account
 try:
     tester = Tester.objects.get(username=cardData["User"])
 except:
-    print("Tester %s not valid" % cardData["User"])
-    sys.exit("Invalid Tester") 
+    sys.exit("Tester %s not valid" % cardData["User"]) 
 
 #load time of test
 test_time = cardData["DateRun"] + "-06:00"
@@ -46,22 +39,25 @@ test_time = cardData["DateRun"] + "-06:00"
 try:
     qie = QieCard.objects.get(uid=getUID(cardData["Unique_ID"]))
 except:
-    print 'QIE card with UID %s not in database' % getUID(cardData["Unique_ID"])
-    sys.exit("Invalid QIE card UID")
+    sys.exit('QIE card with UID %s not in database' % getUID(cardData["Unique_ID"]))
+
+attemptArr = []
 
 #load in all test results
-for test in cardData.keys():
-    if(test != "DateRun" and test != "Unique_ID" and test != "Barcode" and test != "User" and test != "TestType"):
+for test in cardData["Tests"].keys():
+    if(test != "TestType"):
         try:
             temp_test = Test.objects.get(name=test)
         except:
-            print 'Test "%s" not in database' % test
             sys.exit('Test "%s" not in database' % test)
-    
+
+        data = cardData["Tests"][test]
+
         prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
         attempt_num = len(prev_attempts) + 1
-        if(cardData[test][0] == 0 and cardData[test][1] == 0): 
+        if(data[0] == 0 and data[1] == 0): 
             temp_attempt = Attempt(card=qie,
+                                   plane_loc=cardData["JSlot"],
                                    test_type=temp_test,
                                    attempt_number=attempt_num,
                                    tester=tester,
@@ -75,14 +71,18 @@ for test in cardData.keys():
                                    )
         else:
             temp_attempt = Attempt(card=qie,
+                                   plane_loc="default",
                                    test_type=temp_test,
                                    attempt_number=attempt_num,
                                    tester=tester,
                                    date_tested=test_time,
-                                   num_passed=cardData[test][0],
-                                   num_failed=cardData[test][1],
+                                   num_passed=data[0],
+                                   num_failed=data[1],
                                    temperature=float(cardData["Temperature"]),
                                    humidity=float(cardData["Humidity"])
                                    )
             
-        temp_attempt.save()
+        attemptArr.append(temp_attempt)
+        
+for attempt in attemptArr:
+    attempt.save()

@@ -3,50 +3,92 @@
 ###################################################
 #               Set Initial Data                  #
 ###################################################
-echo "Setting initial data"
+echo "vvvvSetting initial data"
 
 scriptLoc=$(readlink -f $(dirname $0) )
 jsonStore=$scriptLoc/temp_json
+logLoc=$scriptLoc/log_files
 
 remoteHost=cmshcal12
-remoteLoc=/home/hep/tempJsonResults
-mkdir $jsonStore
+remoteLoc=/home/hep/jsonResults
 
-echo "Initial data set"
+echo "^^^^Initial data set"
+echo ""
 ###################################################
 #            Retrieve Remote Files                #
 ###################################################
-echo "Retrieving remote files"
+echo "vvvvRetrieving remote files"
 
 rsync -a $remoteHost:$remoteLoc/ $jsonStore
-ssh $remoteHost rm $remoteLoc/*.json
+#ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
+#ssh $remoteHost rm -f $remoteLoc/*test_raw.json
 
-echo "Remote files retrieved"
+echo "^^^^Remote files retrieved"
+echo ""
+echo ""
 ###################################################
 #           Register New QIE Cards                #
 ###################################################
-echo "Uploading new QIE cards"
+echo "vvvvUploading new QIE cards"
+echo ""
 
-fileList=$(ls $jsonStore/*_step1_raw.json )
-for file in $fileList
-do
-    python $scriptLoc/card_upload.py $file
-    rm $file
-done
+if ls $jsonStore/*step1_raw.json &> error.log
+then
+    fileList=$(ls $jsonStore/*step1_raw.json)
+    for file in $fileList
+    do
+        echo "--------Processing $(basename $file)"
+        python $scriptLoc/card_upload.py $file 2> $file.log
 
-echo "New QIE cards uploaded"
+        if [ $? -eq 0 ]
+        then
+            echo "------------Removing $(basename $file)"
+            #rm $file*
+        else
+            echo "!-!-!-!-!-!-ERROR (see $(basename $file).log)"
+        fi
+    done
+else
+    echo "--------No QIE cards to upload"
+fi
+
+echo ""
+echo "^^^^New QIE cards uploaded"
+echo ""
+echo ""
 ###################################################
 #           Register QIE Tests                    #
 ###################################################
-echo "Uploading QIE tests"
+echo "vvvvUploading QIE tests"
+echo ""
 
-fileList=$(ls $jsonStore/*raw.json )
-for file in $fileList
-do
-    python $scriptLoc/test_upload.py $file
-done
+if ls $jsonStore/*test_raw.json &> error.log
+then
+    fileList=$(ls $jsonStore/*test_raw.json )
+    for file in $fileList
+    do
+        echo "--------Processing $(basename $file)"
+        python $scriptLoc/test_upload.py $file &> $file.log
 
-echo "QIE tests uploaded"
+        if [ $? -eq 0 ]
+        then
+            echo "------------Removing $(basename $file)"
+            rm $file*
+        else
+            echo "!-!-!-!-!-!-ERROR (see $(basename $file).log)"
+        fi
+        echo ""
+    done
+else
+    echo "--------No tests to upload"
+    echo ""
+fi
 
-rm -r $jsonStore
+echo "^^^^QIE tests uploaded"
+echo ""
+echo ""
+
+# Move log files to proper folder
+mv $jsonStore/*.log $logLoc
+
 echo "Finished"
