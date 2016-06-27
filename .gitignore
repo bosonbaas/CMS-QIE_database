@@ -8,3 +8,4 @@ card_db/test.log
 card_db/todo
 media
 **.tar.gz
+**.log
