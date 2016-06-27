@@ -10,3 +10,4 @@ card_db/todo
 media
 **.tar.gz
 **.log
+card_db/static

@@ -43,7 +43,7 @@ def loadCard(cardData):
                        )
     return card
 
-def loadTests(qie, tester, date, testData):
+def loadTests(qie, tester, date, testData, path):
 
     attempts = []
     
@@ -67,6 +67,7 @@ def loadTests(qie, tester, date, testData):
                                    num_failed=0,
                                    temperature=-999,
                                    humidity=-999,
+                                   log_file=path
                                    )
         else:
             temp_attempt = Attempt(card=qie,
@@ -78,11 +79,12 @@ def loadTests(qie, tester, date, testData):
                                    num_passed=0,
                                    num_failed=1,
                                    temperature=-999,
-                                   humidity=-999
+                                   humidity=-999,
+                                   log_file=path
                                    )
             
         attempts.append(temp_attempt)
-        return attempts
+    return attempts
 
 def setLocation(qie, date):
     return Location(card=qie,
@@ -91,14 +93,15 @@ def setLocation(qie, date):
                     )
 
 def moveJsonFile(qie, fileName):
-    path = os.path.join(MEDIA_ROOT, "uploads/", qie.uid)
-    print path
-    if not os.path.exists(path):
-        os.makedirs(path)
+    url = os.path.join("uploads/", qie.uid)
+    path = os.path.join(MEDIA_ROOT, url)
+    if os.path.exists(path):
+        exit("Database already contains folder for this card")    
+    os.makedirs(path)
         
     newPath = os.path.join(path, os.path.basename(fileName))
-    print newPath
     os.rename(fileName, newPath)
+    return url
 
 # Load the .json into a dictionary
 fileName = sys.argv[1]
@@ -120,13 +123,13 @@ except:
     sys.exit("Tester %s not valid" % cardData["User"])
 
 
+newPath = moveJsonFile(qie, fileName)
 qie.save()
-attempts = loadTests(qie, tester, date, cardData["testResults"])
+
+attempts = loadTests(qie, tester, date, cardData["testResults"], newPath)
 
 location = setLocation(qie, date)
 location.save()
 
 for attempt in attempts:
     attempt.save()
-
-moveJsonFile(qie, fileName)

@@ -213,6 +213,7 @@ class Attempt(models.Model):
     humidity = models.FloatField(default=-999.9)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     image = models.ImageField(upload_to=images_location, default="default.png")
+    
     log_file = models.FileField(upload_to=logs_location, default='default.png')
     log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
@@ -255,11 +256,15 @@ def pre_save_handler(sender, instance, *args, **kwargs):
 # An appendage to the delete function
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+import shutil
+from card_db.settings import MEDIA_ROOT
+
 
 @receiver(pre_delete, sender=Attempt)
 def mymodel_delete(sender, instance, **kwargs):
     """ Deletes the stored image """
     if instance.image != "default.png":
         instance.image.delete(False)
-    if instance.log_file != "default.png":
-        instance.log_file.delete(False)
+    if instance.log_file != "default.png" and os.path.exists(os.path.join(MEDIA_ROOT, instance.log_file.name)):
+        shutil.rmtree(os.path.join(MEDIA_ROOT, instance.log_file.name))
+        

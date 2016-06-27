@@ -18,6 +18,16 @@ def getUID(raw):
         refined += ':'
     return refined[:17]
 
+def moveJsonFile(qie, fileName):
+    url = os.path.join("uploads/", qie.uid)
+    path = os.path.join(MEDIA_ROOT, url)
+    if not os.path.exists(path):
+        exit("Database does not contain this card's log folder")
+        
+    newPath = os.path.join(path, os.path.basename(fileName))
+    os.rename(fileName, newPath)
+    return url
+
 #file name of report
 fileName = sys.argv[1]
 
@@ -40,6 +50,8 @@ try:
     qie = QieCard.objects.get(uid=getUID(cardData["Unique_ID"]))
 except:
     sys.exit('QIE card with UID %s not in database' % getUID(cardData["Unique_ID"]))
+
+url = moveJsonFile(qie, fileName)
 
 attemptArr = []
 
@@ -67,7 +79,8 @@ for test in cardData["Tests"].keys():
                                    temperature=float(cardData["Temperature"]),
                                    humidity=float(cardData["Humidity"]),
                                    revoked=True,
-                                   comments="This test returned no testing data"
+                                   comments="This test returned no testing data",
+                                   log_file=url
                                    )
         else:
             temp_attempt = Attempt(card=qie,
@@ -79,7 +92,8 @@ for test in cardData["Tests"].keys():
                                    num_passed=data[0],
                                    num_failed=data[1],
                                    temperature=float(cardData["Temperature"]),
-                                   humidity=float(cardData["Humidity"])
+                                   humidity=float(cardData["Humidity"]),
+                                   log_file=url
                                    )
             
         attemptArr.append(temp_attempt)
