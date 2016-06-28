@@ -6,11 +6,13 @@ sys.path.insert(0, '/home/hep/abaas/testing_database/card_db')
 django.setup()
 
 from django.utils import timezone
-from qie_cards.models import *
+from qie_cards.models import Test, Tester, Attempt, Location, QieCard
+from card_db.settings import MEDIA_ROOT
 
 
 
 def getUID(raw):
+    """ Parses the raw UID into a pretty-print format """
     raw = raw[4:]
     refined = ""
     for i in range(6):
@@ -19,38 +21,37 @@ def getUID(raw):
     return refined[:17]
 
 def moveJsonFile(qie, fileName):
+    """ Moves the json for this upload to permanent storage """
     url = os.path.join("uploads/", qie.uid)
     path = os.path.join(MEDIA_ROOT, url)
     if not os.path.exists(path):
         exit("Database does not contain this card's log folder")
         
-    newPath = os.path.join(path, os.path.basename(fileName))
+    newPath = os.path.join(path, timezone.now(), os.path.basename(fileName))
     os.rename(fileName, newPath)
     return url
 
-#file name of report
+# Get filename and upload file to dictionary
 fileName = sys.argv[1]
-
-#open file and load it into dict
 infile = open(fileName, "r")
-
 cardData = json.load(infile)
 
-#find or create tester account
+# Check if the tester exists
 try:
     tester = Tester.objects.get(username=cardData["User"])
 except:
     sys.exit("Tester %s not valid" % cardData["User"]) 
 
-#load time of test
+# Get the time of the test
 test_time = cardData["DateRun"] + "-06:00"
 
-#find or create qie card for database
+# Check if the QIE card exists
 try:
     qie = QieCard.objects.get(uid=getUID(cardData["Unique_ID"]))
 except:
     sys.exit('QIE card with UID %s not in database' % getUID(cardData["Unique_ID"]))
 
+# Move the json file 
 url = moveJsonFile(qie, fileName)
 
 attemptArr = []
@@ -67,7 +68,7 @@ for test in cardData["Tests"].keys():
 
         prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
         attempt_num = len(prev_attempts) + 1
-        if(data[0] == 0 and data[1] == 0): 
+        if(data[0] == 0 and data[1] == 0):
             temp_attempt = Attempt(card=qie,
                                    plane_loc=cardData["JSlot"],
                                    test_type=temp_test,

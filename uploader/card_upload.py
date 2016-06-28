@@ -6,12 +6,13 @@ sys.path.insert(0, '/home/hep/abaas/testing_database/card_db')
 django.setup()
 
 from django.utils import timezone
-from qie_cards.models import *
+from qie_cards.models import Test, Tester, Attempt, Location, QieCard
 from card_db.settings import MEDIA_ROOT
 
 
 
 def getUID(raw):
+    """ Parses the raw UID into a pretty-print format """
     raw = raw[4:]
     refined = ""
     for i in range(6):
@@ -20,7 +21,7 @@ def getUID(raw):
     return refined[:17]
 
 def loadCard(cardData):
-    # Load in QIE card information
+    """ Loads in QIE card information """
     uid =       getUID(cardData["Unique_ID"])
     comments =  cardData["TestComment"]
     barcode =   cardData["Barcode"]
@@ -44,10 +45,9 @@ def loadCard(cardData):
     return card
 
 def loadTests(qie, tester, date, testData, path):
-
+    """ Loads in all test results """
     attempts = []
     
-    #load in all test results
     for test in testData.keys():
         try:
             temp_test = Test.objects.get(name=test)
@@ -87,12 +87,14 @@ def loadTests(qie, tester, date, testData, path):
     return attempts
 
 def setLocation(qie, date):
+    """ Sets a location for the card """
     return Location(card=qie,
                     date_received=date,
                     geo_loc="Wilson Hall 14th floor, Fermilab"
                     )
 
 def moveJsonFile(qie, fileName):
+    """ Moves the json for this upload to permanent storage """
     url = os.path.join("uploads/", qie.uid)
     path = os.path.join(MEDIA_ROOT, url)
     if os.path.exists(path):

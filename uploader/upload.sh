@@ -9,7 +9,7 @@ scriptLoc=$(readlink -f $(dirname $0) )
 jsonStore=$scriptLoc/temp_json
 logLoc=$scriptLoc/log_files
 
-rm $logLoc/*.log
+rm -f $logLoc/*.log
 
 remoteHost=cmshcal12
 remoteLoc=/home/hep/jsonResults
@@ -27,9 +27,13 @@ echo ""
 ###################################################
 echo -e "${STATUS}Retrieving remote files"
 
-rsync -a $remoteHost:$remoteLoc/ $jsonStore
-ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
-ssh $remoteHost rm -f $remoteLoc/*test_raw.json
+if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
+then
+    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
+    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
+else
+    echo -e "    ${SUCCESS}No remote files"
+fi
 
 echo -e "${STATUS}Remote files retrieved"
 echo ""
@@ -38,7 +42,7 @@ echo ""
 ###################################################
 echo -e "${STATUS}Uploading new QIE cards"
 
-if ls $jsonStore/*step1_raw.json &> error.log
+if ls $jsonStore/*step1_raw.json &> /dev/null
 then
     fileList=$(ls $jsonStore/*step1_raw.json)
     for file in $fileList
@@ -65,7 +69,7 @@ echo ""
 ###################################################
 echo -e "${STATUS}Uploading QIE tests"
 
-if ls $jsonStore/*test_raw.json &> error.log
+if ls $jsonStore/*test_raw.json &> /dev/null
 then
     fileList=$(ls $jsonStore/*test_raw.json )
     for file in $fileList
@@ -89,6 +93,6 @@ echo -e "${STATUS}QIE tests uploaded"
 echo ""
 
 # Move log files to proper folder
-mv $jsonStore/*.log $logLoc
+mv $jsonStore/*.log $logLoc 2> /dev/null
 
 echo -e "${STATUS}Finished${DEF}"
