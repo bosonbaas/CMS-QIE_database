@@ -68,6 +68,8 @@ def detail(request, card):
     tests = Test.objects.all()
     attempts = {}
     
+    files = []
+    
     for test in tests:
         attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk)
         

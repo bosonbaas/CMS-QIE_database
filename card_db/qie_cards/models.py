@@ -223,6 +223,10 @@ class Attempt(models.Model):
     def has_image(self):
         """ This returns whether the attempt has a specified image """
         return (not self.image == "default.png")
+        
+    def has_log(self):
+        """ This returns whether the attempt has a log folder """
+        return (not self.log_file == "default.png")
 
     def get_css_class(self):
         """ This returns the color which the Attempt template should take """

@@ -1,8 +1,9 @@
 import sys
+import os
 import json
 import django
 
-sys.path.insert(0, '/home/hep/abaas/testing_database/card_db')
+sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
 
 from django.utils import timezone
@@ -50,7 +51,7 @@ def loadTests(qie, tester, date, testData, path):
     
     for test in testData.keys():
         try:
-            temp_test = Test.objects.get(name=test)
+            temp_test = Test.objects.get(abbreviation=test)
         except:
             sys.exit('Test "%s" not in database' % test)
     
@@ -103,7 +104,7 @@ def moveJsonFile(qie, fileName):
         
     newPath = os.path.join(path, os.path.basename(fileName))
     os.rename(fileName, newPath)
-    return url
+    return os.path.join(url, os.path.basename(fileName))
 
 # Load the .json into a dictionary
 fileName = sys.argv[1]

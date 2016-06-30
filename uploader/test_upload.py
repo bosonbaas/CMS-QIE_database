@@ -1,8 +1,9 @@
 import sys
+import os
 import json
 import django
 
-sys.path.insert(0, '/home/hep/abaas/testing_database/card_db')
+sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
 
 from django.utils import timezone
@@ -27,9 +28,9 @@ def moveJsonFile(qie, fileName):
     if not os.path.exists(path):
         exit("Database does not contain this card's log folder")
         
-    newPath = os.path.join(path, timezone.now(), os.path.basename(fileName))
+    newPath = os.path.join(path, str(timezone.now()) + os.path.basename(fileName))
     os.rename(fileName, newPath)
-    return url
+    return os.path.join(url, str(timezone.now()) + os.path.basename(fileName))
 
 # Get filename and upload file to dictionary
 fileName = sys.argv[1]
@@ -60,7 +61,7 @@ attemptArr = []
 for test in cardData["Tests"].keys():
     if(test != "TestType"):
         try:
-            temp_test = Test.objects.get(name=test)
+            temp_test = Test.objects.get(abbreviation=test)
         except:
             sys.exit('Test "%s" not in database' % test)
 

@@ -61,7 +61,7 @@
                 </tr>
                 <tr class="{{attempt.get_css_class}}">
                     <td><b>Log Files:</b></td>
-                    <td colspan="3">{% if attempt.has_image %}<a href="../media/{{attempt.log_file}}">{{attempt.log_file}}</a>
+                    <td colspan="3">{% if attempt.has_log %}<a href="../media/{{attempt.log_file}}">{{attempt.log_file}}</a>
                                     {% else %} No file {% endif %}</td>
                 </tr>
             </tbody>

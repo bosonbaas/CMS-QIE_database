@@ -11,7 +11,7 @@ logLoc=$scriptLoc/log_files
 
 rm -f $logLoc/*.log
 
-remoteHost=cmshcal12
+remoteHost=hep@cmshcal12
 remoteLoc=/home/hep/jsonResults
 
 STATUS="\e[1;34m"
