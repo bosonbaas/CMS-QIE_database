@@ -41,6 +41,9 @@ def validate_uid(uid):
     
     parsed = uid.split(":")
     
+    if uid == "":
+        return ""
+    
     #UID must have 6 sections
     if not len(parsed) == 6:
         raise ValidationError("UID must have six ':'-separated sections")
@@ -132,10 +135,10 @@ class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
     barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
-    uid = models.CharField(max_length=17, validators=[validate_uid], unique=True, default="")
-    major_ver = models.CharField(max_length=4, default="")
-    minor_ver = models.CharField(max_length=4, default="")
-    other_ver = models.CharField(max_length=8, default="")
+    uid = models.CharField(max_length=17, validators=[validate_uid], blank=True, default="")
+    major_ver = models.CharField(max_length=4, default="", blank=True)
+    minor_ver = models.CharField(max_length=4, default="", blank=True)
+    other_ver = models.CharField(max_length=8, default="", blank=True)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_bar_uid(self):
@@ -267,8 +270,8 @@ from card_db.settings import MEDIA_ROOT
 @receiver(pre_delete, sender=Attempt)
 def mymodel_delete(sender, instance, **kwargs):
     """ Deletes the stored image """
-    if instance.image != "default.png":
-        instance.image.delete(False)
-    if instance.log_file != "default.png" and os.path.exists(os.path.join(MEDIA_ROOT, instance.log_file.name)):
-        shutil.rmtree(os.path.join(MEDIA_ROOT, instance.log_file.name))
-        
+    if len(Attempt.objects.filter(card=instance.card)) == 1:
+        if instance.image != "default.png":
+            instance.image.delete(False)
+        if instance.log_file != "default.png" and os.path.exists(os.path.join(MEDIA_ROOT, os.path.dirname(instance.log_file.name))):
+            shutil.rmtree(os.path.join(MEDIA_ROOT, os.path.dirname(instance.log_file.name)))

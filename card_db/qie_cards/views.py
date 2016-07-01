@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 
-from .models import QieCard, Tester, Test, Attempt
+from .models import QieCard, Tester, Test, Attempt, Location
 
 # Create your views here.
 
@@ -14,7 +14,7 @@ class CatalogView(generic.ListView):
     template_name = 'qie_cards/catalog.html'
     context_object_name = 'barcode_list'
     def get_queryset(self):
-        return QieCard.objects.all()
+        return QieCard.objects.all().order_by('barcode')
 
 
 class SummaryView(generic.ListView):
@@ -65,12 +65,12 @@ def detail(request, card):
         p = QieCard.objects.get(barcode=card)
     except QieCard.DoesNotExist:
         raise Http404("QIE card does not exist")
+
     tests = Test.objects.all()
+    locations = Location.objects.filter(card=p)
     attempts = {}
-    
-    files = []
     
     for test in tests:
         attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk)
         
-    return render(request, 'qie_cards/detail.html', {'card': p, 'attempts':attempts})
+    return render(request, 'qie_cards/detail.html', {'card': p, 'attempts':attempts, 'locations':locations})

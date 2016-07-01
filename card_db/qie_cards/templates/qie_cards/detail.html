@@ -13,12 +13,37 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-3" align="center">
-        <h1>Card: {{card.barcode}}</h1>
-        <h3>Location: {{card.geo_loc}}</h3>
+    <div class="col-md-4" align="center">
+        <h1>Barcode: {{card.barcode | default:"No barcode uploaded"}}</h1>
+        <h1>UID: {{card.uid | default:"No UID uploaded"}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6" align="left">
+        <h3>Comments:</h3>
+        <h5>{{card.comments | default:"No comment given"}}</h5>
     </div>
 </div>
 
+<hr/>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Locations</h3>
+        {% for location in locations %}
+        <br>
+        <h4>{{location.geo_loc}}</h4>
+        <table class="table table-bordered table-striped Portage_table" style="width: 60%; background-color: #F6F6F6;">
+            <tbody>
+                <tr>
+                    <td><b>Date:</b></td>
+                    <td colspan="3"> {{location.date_received | default:"No date recorded"}} </td>
+                </tr> 
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+</div>
 {% for test in attempts %}
 <hr/>
 <div class="row">

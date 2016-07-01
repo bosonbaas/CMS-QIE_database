@@ -27,20 +27,20 @@ echo ""
 ###################################################
 echo -e "${STATUS}Retrieving remote files"
 
-if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
-then
-    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
-    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
-else
-    echo -e "    ${SUCCESS}No remote files"
-fi
+#if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
+#then
+#    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
+#    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
+#else
+#    echo -e "    ${SUCCESS}No remote files"
+#fi
 
 echo -e "${STATUS}Remote files retrieved"
 echo ""
 ###################################################
-#           Register New QIE Cards                #
+#           Register Step 1 Tests                 #
 ###################################################
-echo -e "${STATUS}Uploading new QIE cards"
+echo -e "${STATUS}Uploading step 1 tests"
 
 if ls $jsonStore/*step1_raw.json &> /dev/null
 then
@@ -48,21 +48,48 @@ then
     for file in $fileList
     do
         echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
-        python $scriptLoc/card_upload.py $file 2> $file.log
+        python $scriptLoc/step1.py $file 2> $file.log
 
         if [ $? -eq 0 ]
         then
             echo -e "      ${SUCCESS}Success"
-            rm $file.log
+            rm $file*
         else
             echo -e "      ${FAIL}ERROR${DEF} (see $(basename $file).log)"
         fi
     done
 else
-    echo -e "    ${SUCCESS}No QIE cards to upload"
+    echo -e "    ${SUCCESS}No step 1 tests to upload"
 fi
 
-echo -e "${STATUS}New QIE cards uploaded"
+echo -e "${STATUS}New step 1 tests uploaded"
+echo ""
+###################################################
+#           Register Step 2 Tests                 #
+###################################################
+echo -e "${STATUS}Uploading step 2 tests"
+
+if ls $jsonStore/*step2_raw.json &> /dev/null
+then
+    fileList=$(ls $jsonStore/*step2_raw.json)
+    for file in $fileList
+    do
+        echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
+        python $scriptLoc/step2.py $file 2> $file.log
+
+        if [ $? -eq 0 ]
+        then
+            echo -e "      ${SUCCESS}Success"
+            rm $file*
+        else
+            echo -e "      ${FAIL}ERROR${DEF} (see $(basename $file).log)"
+        fi
+    done
+else
+    echo -e "    ${SUCCESS}No step 2 tests to upload"
+fi
+
+echo -e "${STATUS}New step 2 tests uploaded"
 echo ""
 ###################################################
 #           Register QIE Tests                    #

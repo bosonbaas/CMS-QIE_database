@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import django
+from shutil import copyfile
 
 sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
@@ -10,37 +11,19 @@ from django.utils import timezone
 from qie_cards.models import Test, Tester, Attempt, Location, QieCard
 from card_db.settings import MEDIA_ROOT
 
-
-
-def getUID(raw):
-    """ Parses the raw UID into a pretty-print format """
-    raw = raw[4:]
-    refined = ""
-    for i in range(6):
-        refined += raw[2*i : 2*(i + 1)]
-        refined += ':'
-    return refined[:17]
-
 def loadCard(cardData):
     """ Loads in QIE card information """
-    uid =       getUID(cardData["Unique_ID"])
     comments =  cardData["TestComment"]
     barcode =   cardData["Barcode"]
-    major_ver = cardData["FirmwareMaj"]
-    minor_ver = cardData["FirmwareMin"]
-    other_ver = cardData["FirmwareOth"]
+    print barcode
 
     #find or create qie card for database
-    qie = QieCard.objects.filter(uid=getUID(cardData["Unique_ID"]))
+    qie = QieCard.objects.filter(barcode=barcode)
 
     if qie:
-        sys.exit('QIE card with UID "%s" is already in the database' % getUID(cardData["Unique_ID"]))
+        sys.exit('QIE card with barcode "%s" is already in the database' % cardData["Barcode"])
     else:
         card = QieCard(barcode=barcode,
-                       uid=uid,
-                       major_ver=major_ver,
-                       minor_ver=minor_ver,
-                       other_ver=other_ver,
                        comments=comments
                        )
     return card
@@ -96,14 +79,14 @@ def setLocation(qie, date):
 
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """
-    url = os.path.join("uploads/", qie.uid)
+    url = os.path.join("uploads/", qie.barcode)
     path = os.path.join(MEDIA_ROOT, url)
     if os.path.exists(path):
         exit("Database already contains folder for this card")    
     os.makedirs(path)
         
     newPath = os.path.join(path, os.path.basename(fileName))
-    os.rename(fileName, newPath)
+    copyfile(fileName, newPath)
     return os.path.join(url, os.path.basename(fileName))
 
 # Load the .json into a dictionary
