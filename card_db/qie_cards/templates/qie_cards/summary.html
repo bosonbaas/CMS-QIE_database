@@ -1,4 +1,5 @@
 {% extends "qie_cards/base.html" %}
+{% load app_filters %}
 
 {% block style %}
 ul {
@@ -23,23 +24,23 @@ ul {
 			</tr>
 		</thead>
 		<tbody>
-			{% if card_list %}
-			{% for card in card_list %}
+			{% if cards %}
+			{% for stats in cards %}
 			<tr style="background-color: #F6F6F6">
-				<td> <a href="{{card.barcode}}/">{{card.barcode}}</a></td>
+				<td> <a href="{{stats.barcode}}/">{{stats.barcode}}</a></td>
 				<td><ul>
-					{% for test in card.get_remaining %}
-					<li> <a href="setup">{{test.name}}</a></li>
+					{% for test in stats.remaining %}
+					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 				<td><ul>
-					{% for test in card.get_passed %}
-					<li> <a href="setup">{{test.name}}</a></li>
+					{% for test in stats.passed %}
+					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 				<td><ul>
-					{% for test in card.get_failed %}
-					<li> <a href="setup">{{test.name}}</a></li>
+					{% for test in stats.failed %}
+					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 			</tr>

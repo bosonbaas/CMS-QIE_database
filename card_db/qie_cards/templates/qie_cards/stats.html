@@ -12,6 +12,7 @@ ul {
 
 {% block content %}
 
+<!--
 <div class="row">
 	<div align="center">	
 		<h2 class="title">Successful Cards</h2>
@@ -29,15 +30,15 @@ ul {
 			</tr>
 		</thead>
 		<tbody>
-			{% if c.test_list %}
+			{% if tests %}
 			<tr align="left">
 				<td><ul style="font-size:10px">
-				{% for card in c.test_inst.cards_passed_all %}
-				<li><a href="{{card.barcode}}/">{{card.barcode}}</a></li>
+				{% for card in tests.cards %}
+				<li><a href="{{card}}/">{{card}}</a></li>
 				{% endfor %}
 				</ul></td>
-				<td> {{c.test_inst.num_passed}} </td>
-				<td> {{c.test_inst.perc_passed}}% </td>
+				<td> {{tests.name}} </td>
+				<td> {{tests.}}% </td>
 			</tr>
 			{% else %}
 			<h1> No test database </h1>
@@ -48,6 +49,7 @@ ul {
 </div>
 
 <br/><br/>
+-->
 
 <div class="row">
 	<div align="center">	
@@ -67,17 +69,17 @@ ul {
 			</tr>
 		</thead>
 		<tbody>
-			{% if c.test_list %}
-			{% for test in c.test_list %}
+			{% if tests %}
+			{% for test in tests %}
 			<tr align="left">
 				<td> {{test.name}} </td>
 				<td><ul style="font-size:10px">
-				{% for card in test.cards_failed %}
-				<li><a href="{{card.barcode}}/">{{card.barcode}}</a></li>
+				{% for card in test.cards %}
+				<li><a href="{{card}}/">{{card}}</a></li>
 				{% endfor %}
-				</ul></td>
-				<td> {{test.num_failed}} </td>
-				<td> {{test.perc_failed}}% </td>
+				</ul>
+				<td> {{test.number}} </td>
+				<td> {{test.percentage}}% </td>
 			</tr>
 			{% endfor %}
 			{% else %}

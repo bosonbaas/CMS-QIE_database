@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
+import datetime
 
 from .models import QieCard, Tester, Test, Attempt, Location
 
@@ -17,14 +18,65 @@ class CatalogView(generic.ListView):
         return QieCard.objects.all().order_by('barcode')
 
 
-class SummaryView(generic.ListView):
-    """ This displays the states of tests for each QIE card """
+def summary(request):
+    """ This displays a summary of the cards """
+    print datetime.datetime.now().time()
+    cards = list(QieCard.objects.all().order_by('barcode'))
+    print "Cards loaded: " + str(datetime.datetime.now().time())
+    tests = list(Test.objects.all())
+    print "Tests loaded: " + str(datetime.datetime.now().time())
+    attempts = list(Attempt.objects.all())
+    print "Attempts loaded: " + str(datetime.datetime.now().time())
+    
+    numTests = len(tests)
+    testsToInd = {}
 
-    template_name = 'qie_cards/summary.html'
-    context_object_name = 'card_list'
-    def get_queryset(self):
-        return QieCard.objects.all().order_by('barcode')
+    for i in xrange(numTests):
+        testsToInd[tests[i].pk] = i
 
+    state = {}
+
+    for card in cards:
+        state[card.pk] = [0] * numTests
+    
+    print "State initialized: " + str(datetime.datetime.now().time())
+    
+    for attempt in attempts:
+        if not attempt.revoked:
+            testInd = testsToInd[attempt.test_type_id];
+            if not attempt.num_failed == 0:
+                state[attempt.card_id][testInd] = 2
+            elif not attempt.num_passed == 0 and state[attempt.card_id][testInd] == 0:
+                state[attempt.card_id][testInd] = 1
+
+    print "State computed: " + str(datetime.datetime.now().time())
+
+    cardStat = []
+
+    for i in xrange(len(cards)):
+        card = cards[i]
+        curFail = []
+        curPass = []
+        curRem = []
+        tempDict = {}
+        curState = state[card.pk]
+
+        for i in xrange(numTests):
+            if curState[i] == 0:
+                curRem.append(tests[i].name)
+            elif curState[i] == 1:
+                curPass.append(tests[i].name)
+            elif curState[i] == 2:
+                curFail.append(tests[i].name)
+        
+        tempDict['barcode'] = card.barcode
+        tempDict['failed'] = curFail
+        tempDict['passed'] = curPass
+        tempDict['remaining'] = curRem
+        cardStat.append(tempDict)
+    print datetime.datetime.now().time()
+        
+    return render(request, 'qie_cards/summary.html', {'cards': cardStat})
 
 class TestersView(generic.ListView):
     """ This displays the users and email addresses """
@@ -58,6 +110,46 @@ class StatsView(generic.ListView):
         if test_list:
             context['test_inst'] = test_list[0]
         return context
+
+def stats(request):
+    """ This displays a summary of the cards """
+    
+    attempts = list(Attempt.objects.all())   
+    cards = list(QieCard.objects.all().order_by("barcode"))
+    tests = list(Test.objects.all()) 
+ 
+    numCards = len(cards)
+    cardsToInd = {}
+
+    for i in xrange(numCards):
+        cardsToInd[cards[i].pk] = i
+
+    failed = {}
+
+    for test in tests:
+        failed[test.pk] = [False] * numCards
+    
+    for attempt in attempts:
+        if not attempt.revoked:
+            cardInd = cardsToInd[attempt.card_id]
+            if not attempt.num_failed == 0:
+                failed[attempt.test_type_id][cardInd] = True
+
+    testStat = []
+
+    for i in xrange(len(tests)):
+        tempStat = {"name": tests[i].name}
+        failCards = []
+        for j in xrange(len(cards)):
+            if failed[tests[i].pk][j]:
+                failCards.append(cards[j].barcode)
+        tempStat["cards"] = failCards
+        tempStat["number"] = len(failCards)
+        tempStat["percentage"] = round( float(len(failCards))/len(cards) * 100, 1)
+        testStat.append(tempStat)
+    
+    sortedTest = sorted(testStat, key=lambda k: k['percentage'], reverse=True)
+    return render(request, 'qie_cards/stats.html', {'tests': sortedTest})
         
 def detail(request, card):
     """ This displays details about tests on a card """
