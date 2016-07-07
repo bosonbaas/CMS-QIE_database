@@ -37,6 +37,8 @@ fileName = sys.argv[1]
 infile = open(fileName, "r")
 cardData = json.load(infile)
 
+overwrite = cardData["Overwrite"]
+
 # Check if the tester exists
 try:
     tester = Tester.objects.get(username=cardData["User"])

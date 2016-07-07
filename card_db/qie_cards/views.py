@@ -76,3 +76,8 @@ def detail(request, card):
         attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk)
         
     return render(request, 'qie_cards/detail.html', {'card': p, 'attempts':attempts, 'locations':locations})
+
+class PlotView(generic.ListView):
+    """ This displays various plots of data """
+    
+    template_name = 'qie_cards/plots.html'

@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^setup$', views.SetupView.as_view(), name='setup'),
     url(r'^(?P<card>[0-9]{7})/$', views.detail, name='detail'),
     url(r'^media/(?P<path>.*)$',serve, {'document_root':MEDIA_ROOT}),
+    url(r'^plots$', views.PlotView.as_view(), name='plots')
 ]

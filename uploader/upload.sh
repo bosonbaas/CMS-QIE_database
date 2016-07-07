@@ -1,6 +1,5 @@
 #!/bin/bash
 
-if []; then
 ###################################################
 #               Set Initial Data                  #
 ###################################################
@@ -190,11 +189,9 @@ fi
 echo -e "${STATUS}uHTR tests uploaded"
 echo ""
 
+
 # Move log files to proper folder
 mv $jsonStore/*.log $logLoc 2> /dev/null
 
 echo -e "${STATUS}Finished${DEF}"
 
-else
-    echo "This is currently under construction!"
-fi

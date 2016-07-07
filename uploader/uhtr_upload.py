@@ -37,6 +37,8 @@ fileName = sys.argv[1]
 infile = open(fileName, "r")
 cardData = json.load(infile)
 
+overwrite = cardData["Overwrite"]
+
 # Check if the tester exists
 try:
     tester = Tester.objects.get(username=cardData["User"])
@@ -58,7 +60,6 @@ url = moveJsonFile(qie, fileName)
 attemptArr = []
 
 #load in all test results
-for test in ["overall pedestal", "overall charge injection", "overall shunt scan", "overall phase scan"]:
 
 test = "overall phase scan"
 try:
@@ -110,9 +111,16 @@ except:
 
 data = cardData[test]
 
-histoName = os.path.join(os.path.directory(fileName), "histostats.tar.gz")
+histoName = os.path.join(os.path.dirname(fileName), "histostats.tar.gz")
+url = "uploads/general_uhtr"
+path = os.path.join(MEDIA_ROOT, url)
 
-url = moveJsonFile(qie, pedName)
+newPath = os.path.join(path, str(test_time) + os.path.basename(histoName))
+if os.path.isfile(histoName):
+    print histoName
+    print newPath
+    os.rename(histoName, newPath)
+url = os.path.join(url, str(test_time) + os.path.basename(histoName))
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -156,8 +164,8 @@ except:
 
 data = cardData[test]
 
-pedName = os.path.join(os.path.directory(fileName), "ci_plot" + str(cardData["Jslot"]) + ".tar.gz")
-
+pedName = os.path.join(os.path.dirname(fileName), "ci_plot" + str(cardData["Jslot"]) + ".tar.gz")
+print pedName
 url = moveJsonFile(qie, pedName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
@@ -202,7 +210,7 @@ except:
 
 data = cardData[test]
 
-pedName = os.path.join(os.path.directory(fileName), "ped_plot" + str(cardData["Jslot"]) + ".tar.gz")
+pedName = os.path.join(os.path.dirname(fileName), "ped_plot" + str(cardData["Jslot"]) + ".tar.gz")
 
 url = moveJsonFile(qie, pedName)
 
