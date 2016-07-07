@@ -52,10 +52,14 @@ try:
 except:
     sys.exit('QIE card with UID %s not in database' % getUID(cardData["Unique_ID"]))
 
-# Move the json file 
+# Move the json file
 url = moveJsonFile(qie, fileName)
 
 attemptArr = []
+
+# Make URL for HR log file
+hrlog = cardData["HumanLogFile"]
+hrURL = os.path.join("human_readable_logs/", hrlog)
 
 #load in all test results
 for test in cardData["Tests"].keys():
@@ -67,7 +71,7 @@ for test in cardData["Tests"].keys():
 
         data = cardData["Tests"][test]
 
-        prev_attempts = Attempt.objects.filter(card=qie, test_type=temp_test)
+        prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
         attempt_num = len(prev_attempts) + 1
         if(data[0] == 0 and data[1] == 0):
             temp_attempt = Attempt(card=qie,
@@ -82,7 +86,7 @@ for test in cardData["Tests"].keys():
                                    humidity=float(cardData["Humidity"]),
                                    revoked=True,
                                    comments="This test returned no testing data",
-                                   log_file=url
+                                   log_file=hrURL
                                    )
         else:
             temp_attempt = Attempt(card=qie,
@@ -95,9 +99,14 @@ for test in cardData["Tests"].keys():
                                    num_failed=data[1],
                                    temperature=float(cardData["Temperature"]),
                                    humidity=float(cardData["Humidity"]),
-                                   log_file=url
+                                   log_file=hrURL
                                    )
-            
+        
+        if overwrite:
+            for prev_att in prev_attempts:
+                prev_att.revoked = True
+                prev_att.save()
+
         attemptArr.append(temp_attempt)
         
 for attempt in attemptArr:

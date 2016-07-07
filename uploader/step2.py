@@ -25,9 +25,11 @@ def getUID(raw):
 def loadCard(cardData, qie):
     """ Loads in QIE card information """
     qie.uid =       getUID(cardData["Unique_ID"])
-    qie.major_ver = cardData["FirmwareMaj"]
-    qie.minor_ver = cardData["FirmwareMin"]
-    qie.other_ver = cardData["FirmwareOth"]
+    qie.bridge_major_ver = cardData["FirmwareMaj"]
+    qie.bridge_minor_ver = cardData["FirmwareMin"]
+    qie.bridge_other_ver = cardData["FirmwareOth"]
+    qie.igloo_major_ver = cardData["IglooMajVer"]
+    qie.igloo_minor_ver = cardData["IglooMinVer"]
     
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """
