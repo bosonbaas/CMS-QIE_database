@@ -1,0 +1,26 @@
+{% extends "qie_cards/base.html" %}
+
+{% block style %}
+ul {
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+}
+{% endblock %}
+
+{% block title %}Database Plots{% endblock %}
+
+{% block content %}
+
+<div class="row">
+	<div align="center">	
+		<h2 class="title">Plot #1</h2>
+	</div>
+</div>
+
+<div class="row">
+	<div class="center" style="width:60%">
+		<a href="media/plots/plot.png"><img src="media/plots/plot.png" ></a>
+	</div>
+</div>
+{% endblock %}
