@@ -12,7 +12,6 @@ ul {
 
 {% block content %}
 
-<!--
 <div class="row">
 	<div align="center">	
 		<h2 class="title">Successful Cards</h2>
@@ -30,15 +29,15 @@ ul {
 			</tr>
 		</thead>
 		<tbody>
-			{% if tests %}
+			{% if passed %}
 			<tr align="left">
 				<td><ul style="font-size:10px">
-				{% for card in tests.cards %}
+				{% for card in passed.cards %}
 				<li><a href="{{card}}/">{{card}}</a></li>
 				{% endfor %}
 				</ul></td>
-				<td> {{tests.name}} </td>
-				<td> {{tests.}}% </td>
+				<td> {{passed.number}} </td>
+				<td> {{passed.percentage}}% </td>
 			</tr>
 			{% else %}
 			<h1> No test database </h1>
@@ -49,7 +48,6 @@ ul {
 </div>
 
 <br/><br/>
--->
 
 <div class="row">
 	<div align="center">	
@@ -69,8 +67,8 @@ ul {
 			</tr>
 		</thead>
 		<tbody>
-			{% if tests %}
-			{% for test in tests %}
+			{% if failed %}
+			{% for test in failed %}
 			<tr align="left">
 				<td> {{test.name}} </td>
 				<td><ul style="font-size:10px">
