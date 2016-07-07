@@ -34,8 +34,9 @@ echo -e "${STATUS}Retrieving remote files"
 if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
 then
     echo "Hi"
-#    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
-#    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
+    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
+    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
+    ssh $remoteHost rm -f $remoteLoc/*.json
 else
     echo -e "    ${SUCCESS}No remote files"
 fi
@@ -43,7 +44,7 @@ fi
 if rsync -aq $remoteHost:$remoteHRLog/*.log $hrLogLoc 2> /dev/null
 then
     echo "Hi"
-#    ssh $remoteHost rm -f $remoteHRLog/*.json
+    ssh $remoteHost rm -f $remoteHRLog/*.log
 else
     echo -e "    ${SUCCESS}No HR Log files"
 fi
@@ -51,7 +52,10 @@ fi
 if rsync -aq --delete $remoteHost:$remoteUHTR/ $uhtrLoc 2> /dev/null
 then
     echo "Hi"
-#    ssh $remoteHost rm -r $remoteLoc/*
+    ssh $remoteHost rm -r $remoteUHTR/ci_plots
+    ssh $remoteHost rm -r $remoteUHTR/histo_statistics
+    ssh $remoteHost rm -r $remoteUHTR/ped_plots
+    ssh $remoteHost rm -r $remoteUHTR/phase_plots
 else
     echo -e "    ${SUCCESS}No uHTR files"
 fi

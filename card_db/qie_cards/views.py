@@ -81,3 +81,5 @@ class PlotView(generic.ListView):
     """ This displays various plots of data """
     
     template_name = 'qie_cards/plots.html'
+    def get_queryset(self):
+        return []

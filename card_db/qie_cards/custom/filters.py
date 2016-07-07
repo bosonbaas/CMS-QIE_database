@@ -9,12 +9,7 @@ def getPassedDates(cards, tests, attempts):
     for card in cardStates:
         if len(card["failed"]) == 0 and len(card["remaining"]) == 0:
             passedCards.append(card["passed"][0][1])
-        else:
-            print "Failed:"
-            print card["failed"]
-            print "Remaining:"
-            print card["remaining"]
-    
+   
     return passedCards
 
 def getFailedDates(cards, tests, attempts):
