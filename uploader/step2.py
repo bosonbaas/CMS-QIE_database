@@ -15,12 +15,8 @@ from card_db.settings import MEDIA_ROOT
 
 def getUID(raw):
     """ Parses the raw UID into a pretty-print format """
-    raw = raw[4:]
-    refined = ""
-    for i in range(6):
-        refined += raw[2*i : 2*(i + 1)]
-        refined += ':'
-    return refined[:17]
+    noHex = raw[2:18]
+    return noHex
 
 def loadCard(cardData, qie):
     """ Loads in QIE card information """

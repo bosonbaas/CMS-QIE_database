@@ -68,55 +68,6 @@ class Test(models.Model):
     description = models.TextField(max_length=1500, default="")
     required = models.BooleanField(default=True)
 
-    def cards_failed(self):
-        """ Returns a list of cards which failed on this test """
-        relatedAttempts = Attempt.objects.filter(test_type=self.pk, revoked=False)
-        allCards = QieCard.objects.all()
-        failed = []
-
-        for card in allCards:
-            if relatedAttempts.filter(card=card.pk, num_failed__gt=0):
-                failed.append(card)
-        
-        return failed
-
-    def num_failed(self):
-        """ Returns how many cards failed this test """
-        return len(Test.cards_failed(self))
-
-    def perc_failed(self):
-        """ Returns what percent of total cards failed this test """
-        total = QieCard.objects.all().count()
-        if total > 0:
-            percentage = (100.0 * Test.num_failed(self)) / total
-        else:
-            percentage = -1
-        return round(percentage, 1)
-
-    def cards_passed_all(self):
-        """ Returns a list of which cards passed all tests """
-        cards = QieCard.objects.all()
-        passed = []
-
-        for card in cards:
-            if not card.get_failed() and not card.get_remaining():
-                passed.append(card)
-
-        return passed
- 
-    def num_passed(self):
-        """ Returns how many cards passed all tests """
-        return len(Test.cards_passed_all(self))
-
-    def perc_passed(self):
-        """ Returns what percent of total cards passed this test """
-        total = QieCard.objects.all().count()
-        if total > 0:
-            percentage = (100.0 * Test.num_passed(self)) / total
-        else:
-            percentage = -1
-        return round(percentage, 1)   
-
     def __str__(self):
         return self.name
 
@@ -135,7 +86,7 @@ class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
     barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
-    uid = models.CharField(max_length=17, validators=[validate_uid], blank=True, default="")
+    uid = models.CharField(max_length=21, blank=True, default="")
     bridge_major_ver = models.CharField(max_length=4, default="", blank=True)
     bridge_minor_ver = models.CharField(max_length=4, default="", blank=True)
     bridge_other_ver = models.CharField(max_length=8, default="", blank=True)
@@ -143,46 +94,24 @@ class QieCard(models.Model):
     igloo_minor_ver = models.CharField(max_length=4, default="", blank=True)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
+    def get_uid_flipped(self):
+        familyName = self.uid[8:16]
+        checkSum = self.uid[0:8]
+        return "0x" + familyName + " 0x" + checkSum
+    
+    def get_uid_mac(self):
+        """ Parses the raw UID into a mac-address format """
+        raw = self.uid[2:]
+        refined = ""
+        for i in range(6):
+            refined += raw[2*i : 2*(i + 1)]
+            refined += ':'
+        return refined[:17]
+
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
         return self.barcode[(len(self.barcode) - 3):]
-
-    def get_passed(self):
-        """ Returns the tests which this card passed """
-        executedTests = Attempt.objects.filter(card=self.pk, revoked=False)
-        allTests = Test.objects.all()
-        passed = []
-
-        for test in allTests:
-            if not executedTests.filter(test_type=test.pk, num_failed__gt=0) and executedTests.filter(test_type=test.pk):
-                passed.append(test)
-        
-        return passed
-
-    def get_failed(self):
-        """ Returns the tests which this card failed """
-        executedTests = Attempt.objects.filter(card=self.pk, revoked=False)
-        allTests = Test.objects.all()
-        testStates = []
-
-        for test in allTests:
-            if executedTests.filter(test_type=test.pk, num_failed__gt=0):
-                testStates.append(test)
-        
-        return testStates
-
-    def get_remaining(self):
-        """ Returns the tests on which this card has no conclusive results """
-        executedTests = Attempt.objects.filter(card=self.pk, revoked=False)
-        allTests = Test.objects.all()
-        testStates = []
-
-        for test in allTests:
-            if not executedTests.filter(test_type=test.pk):
-                testStates.append(test)
-        
-        return testStates
-
+    
     def __str__(self):
        return str(self.barcode)
 

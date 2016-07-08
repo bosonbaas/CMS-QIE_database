@@ -13,13 +13,8 @@ from card_db.settings import MEDIA_ROOT
 
 
 def getUID(raw):
-    """ Parses the raw UID into a pretty-print format """
-    raw = raw[4:]
-    refined = ""
-    for i in range(6):
-        refined += raw[2*i : 2*(i + 1)]
-        refined += ':'
-    return refined[:17]
+    """ Parses the raw UID into a pretty-print format """ 
+    return raw[2:18]
 
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """
@@ -117,8 +112,6 @@ path = os.path.join(MEDIA_ROOT, url)
 
 newPath = os.path.join(path, str(test_time) + os.path.basename(histoName))
 if os.path.isfile(histoName):
-    print histoName
-    print newPath
     os.rename(histoName, newPath)
 url = os.path.join(url, str(test_time) + os.path.basename(histoName))
 
@@ -165,7 +158,6 @@ except:
 data = cardData[test]
 
 pedName = os.path.join(os.path.dirname(fileName), "ci_plot" + str(cardData["Jslot"]) + ".tar.gz")
-print pedName
 url = moveJsonFile(qie, pedName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))

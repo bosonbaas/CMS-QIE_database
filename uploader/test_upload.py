@@ -13,13 +13,8 @@ from card_db.settings import MEDIA_ROOT
 
 
 def getUID(raw):
-    """ Parses the raw UID into a pretty-print format """
-    raw = raw[4:]
-    refined = ""
-    for i in range(6):
-        refined += raw[2*i : 2*(i + 1)]
-        refined += ':'
-    return refined[:17]
+    """ Parses the raw UID into a pretty-print format """ 
+    return raw[2:18]
 
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """

@@ -46,10 +46,6 @@ cards = QieCard.objects.all()
 passed = filters.getPassedDates(cards, tests, attempts)
 failed = filters.getFailedDates(cards, tests, attempts)
 
-print passed
-print failed
-
-
 ################################################
 #          Initialize plot values              #
 ################################################
