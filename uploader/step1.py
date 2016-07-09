@@ -58,7 +58,8 @@ def loadTests(qie, tester, date, testData, path, overwrite):
                                        num_failed=0,
                                        temperature=-999,
                                        humidity=-999,
-                                       log_file=path
+                                       log_file=path,
+                                       hidden_log_file=path,
                                        )
             else:
                 temp_attempt = Attempt(card=qie,
@@ -71,7 +72,8 @@ def loadTests(qie, tester, date, testData, path, overwrite):
                                        num_failed=1,
                                        temperature=-999,
                                        humidity=-999,
-                                       log_file=path
+                                       log_file=path,
+                                       hidden_log_file=path,
                                        )
             if overwrite:
                 for prev_att in prev_attempts:

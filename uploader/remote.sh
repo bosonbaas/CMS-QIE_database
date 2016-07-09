@@ -33,17 +33,17 @@ echo -e "${STATUS}Retrieving remote files"
 
 if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
 then
-    echo "Hi"
+    echo -e "    ${STATUS}Retrieving .json"
     ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
     ssh $remoteHost rm -f $remoteLoc/*test_raw.json
     ssh $remoteHost rm -f $remoteLoc/*.json
 else
-    echo -e "    ${SUCCESS}No remote files"
+    echo -e "    ${SUCCESS}No remote json files"
 fi
 
 if rsync -aq $remoteHost:$remoteHRLog/*.log $hrLogLoc 2> /dev/null
 then
-    echo "Hi"
+    echo -e "    ${STATUS}Retrieving HR log files"
     ssh $remoteHost rm -f $remoteHRLog/*.log
 else
     echo -e "    ${SUCCESS}No HR Log files"
@@ -51,7 +51,7 @@ fi
 
 if rsync -aq --delete $remoteHost:$remoteUHTR/ $uhtrLoc 2> /dev/null
 then
-    echo "Hi"
+    echo -e "    ${STATUS} Retrieving uHTR plots"
     ssh $remoteHost rm -r $remoteUHTR/ci_plots
     ssh $remoteHost rm -r $remoteUHTR/histo_statistics
     ssh $remoteHost rm -r $remoteUHTR/ped_plots
@@ -65,24 +65,27 @@ echo ""
 ###################################################
 #            Make Tarballs for uHTR               #
 ###################################################
-echo -e "${STATUS}Making Tarballs"
+echo -e "${STATUS}Copying uHTR Folders"
 folderList=$(ls $uhtrLoc/ci_plots)
 for file in $folderList
 do
-    echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
-    tar -zcf $jsonStore/ci_plot$(basename $file).tar.gz -C $uhtrLoc/ci_plots/ $file
+    echo -e "    ${ACTION}Processing${DEF} ci_$(basename $file)"
+    cp -r $uhtrLoc/ci_plots/$file $jsonStore/ci_plot$(basename $file)
 done
 folderList=$(ls $uhtrLoc/ped_plots)
 for file in $folderList
 do
-    echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
-    tar -zcf $jsonStore/ped_plot$(basename $file).tar.gz -C $uhtrLoc/ped_plots/ $file
+    echo -e "    ${ACTION}Processing${DEF} ped_$(basename $file)"
+    cp -r $uhtrLoc/ped_plots/$file $jsonStore/ped_plot$(basename $file)
+done
+folderList=$(ls $uhtrLoc/phase_plots)
+for file in $folderList
+do
+    echo -e "    ${ACTION}Processing${DEF} phase_$(basename $file)"
+    cp -r $uhtrLoc/phase_plots/$file $jsonStore/phase_plot$(basename $file)
 done
 
-echo -e "    ${ACTION}Processing${DEF} histo_statistics"
-tar -zcf $jsonStore/histostats.tar.gz -C $uhtrLoc/ histo_statistics
-
-echo -e "${STATUS}Tarballs made"
+echo -e "${STATUS}uHTR Folders Copied"
 echo ""
 ###################################################
 #           Register QIE Tests                    #
@@ -144,4 +147,3 @@ echo ""
 mv $jsonStore/*.log $logLoc 2> /dev/null
 
 echo -e "${STATUS}Finished${DEF}"
-

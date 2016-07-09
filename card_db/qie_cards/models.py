@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 import os
 from django.db import models
 from django.utils import timezone
+from card_db.settings import MEDIA_ROOT
 
 # This file describes the models off of which the database tables
 # will be based
@@ -151,6 +152,8 @@ class Attempt(models.Model):
     log_file = models.FileField(upload_to=logs_location, default='default.png')
     log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
+    hidden_log_file = models.FileField(upload_to=logs_location, default='default.png')
+    
     def passed_all(self):
         return (self.num_failed == 0)
 
@@ -170,7 +173,11 @@ class Attempt(models.Model):
             return "success"
         else:
             return "danger"
-            
+    def get_images(self):
+        path = MEDIA_ROOT + str(self.image)
+        #images = [image for image in os.listdir(os.path.join(MEDIA_ROOT, self.image.url))]
+        if not str(self.image)[-4:] == "uhtr" and not str(self.image)[-4:] == "r.gz":
+            return os.listdir(path)
 
     def __str__(self):
         return str(self.test_type)

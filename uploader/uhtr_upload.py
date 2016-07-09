@@ -1,7 +1,9 @@
 import sys
+from shutil import copyfile, copytree, rmtree
 import os
 import json
 import django
+import time
 
 sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
@@ -16,16 +18,29 @@ def getUID(raw):
     """ Parses the raw UID into a pretty-print format """ 
     return raw[2:18]
 
-def moveJsonFile(qie, fileName):
-    """ Moves the json for this upload to permanent storage """
+def moveImageDir(qie, folder):
+    """ Moves the folder of images """
+    uniquePre = str(int(time.time()))
     url = os.path.join("uploads/", qie.barcode)
     path = os.path.join(MEDIA_ROOT, url)
     if not os.path.exists(path):
         exit("Database does not contain this card's log folder")
         
-    newPath = os.path.join(path, str(timezone.now()) + os.path.basename(fileName))
-    os.rename(fileName, newPath)
-    return os.path.join(url, str(timezone.now()) + os.path.basename(fileName))
+    newPath = os.path.join(path, uniquePre + os.path.basename(folder))
+    copytree(folder, newPath)
+    return os.path.join(url, uniquePre + os.path.basename(folder))
+
+def moveJsonFile(qie, fileName):
+    """ Moves the json for this upload to permanent storage """
+    uniquePre = str(int(time.time()))
+    url = os.path.join("uploads/", qie.barcode)
+    path = os.path.join(MEDIA_ROOT, url)
+    if not os.path.exists(path):
+        exit("Database does not contain this card's log folder")
+        
+    newPath = os.path.join(path, uniquePre + os.path.basename(fileName))
+    copyfile(fileName, newPath)
+    return os.path.join(url, uniquePre + os.path.basename(fileName))
 
 # Get filename and upload file to dictionary
 fileName = sys.argv[1]
@@ -56,13 +71,20 @@ attemptArr = []
 
 #load in all test results
 
+###############################################
+#            Loading Phase Scan               #
+###############################################
 test = "overall phase scan"
+
 try:
     temp_test = Test.objects.get(abbreviation=test)
 except:
     sys.exit('Test "%s" not in database' % test)
 
 data = cardData[test]
+
+phaseName = os.path.join(os.path.dirname(fileName), "phase_plot" + str(cardData["Jslot"]))
+media = moveImageDir(qie, phaseName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -77,7 +99,9 @@ if(data[0] == 0 and data[1] == 0):
                            num_failed=0,
                            revoked=True,
                            comments="This test returned no testing data",
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
 else:
     temp_attempt = Attempt(card=qie,
@@ -88,7 +112,9 @@ else:
                            date_tested=test_time,
                            num_passed=data[0],
                            num_failed=data[1],
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
         
 if overwrite:
@@ -98,6 +124,9 @@ if overwrite:
 
 attemptArr.append(temp_attempt)
 
+###############################################
+#            Loading Shunt Scan               #
+###############################################
 test = "overall shunt scan"
 try:
     temp_test = Test.objects.get(abbreviation=test)
@@ -106,14 +135,6 @@ except:
 
 data = cardData[test]
 
-histoName = os.path.join(os.path.dirname(fileName), "histostats.tar.gz")
-url = "uploads/general_uhtr"
-path = os.path.join(MEDIA_ROOT, url)
-
-newPath = os.path.join(path, str(test_time) + os.path.basename(histoName))
-if os.path.isfile(histoName):
-    os.rename(histoName, newPath)
-url = os.path.join(url, str(test_time) + os.path.basename(histoName))
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -128,7 +149,8 @@ if(data[0] == 0 and data[1] == 0):
                            num_failed=0,
                            revoked=True,
                            comments="This test returned no testing data",
-                           log_file=url
+                           log_file=url,
+                           hidden_log_file=url,
                            )
 else:
     temp_attempt = Attempt(card=qie,
@@ -139,9 +161,10 @@ else:
                            date_tested=test_time,
                            num_passed=data[0],
                            num_failed=data[1],
-                           log_file=url
+                           log_file=url,
+                           hidden_log_file=url,
                            )
-        
+
 if overwrite:
     for prev_att in prev_attempts:
         prev_att.revoked = True
@@ -149,6 +172,9 @@ if overwrite:
 
 attemptArr.append(temp_attempt)
 
+###############################################
+#          Loading Charge Injection           #
+###############################################
 test = "overall charge injection"
 try:
     temp_test = Test.objects.get(abbreviation=test)
@@ -157,8 +183,8 @@ except:
 
 data = cardData[test]
 
-pedName = os.path.join(os.path.dirname(fileName), "ci_plot" + str(cardData["Jslot"]) + ".tar.gz")
-url = moveJsonFile(qie, pedName)
+ciName = os.path.join(os.path.dirname(fileName), "ci_plot" + str(cardData["Jslot"]))
+media = moveImageDir(qie, ciName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -173,7 +199,9 @@ if(data[0] == 0 and data[1] == 0):
                            num_failed=0,
                            revoked=True,
                            comments="This test returned no testing data",
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
 else:
     temp_attempt = Attempt(card=qie,
@@ -184,7 +212,9 @@ else:
                            date_tested=test_time,
                            num_passed=data[0],
                            num_failed=data[1],
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
         
 if overwrite:
@@ -194,6 +224,9 @@ if overwrite:
 
 attemptArr.append(temp_attempt)
 
+###############################################
+#         Loading Pedestal Values             #
+###############################################
 test = "overall pedestal"
 try:
     temp_test = Test.objects.get(abbreviation=test)
@@ -202,9 +235,9 @@ except:
 
 data = cardData[test]
 
-pedName = os.path.join(os.path.dirname(fileName), "ped_plot" + str(cardData["Jslot"]) + ".tar.gz")
+pedName = os.path.join(os.path.dirname(fileName), "ped_plot" + str(cardData["Jslot"]))
 
-url = moveJsonFile(qie, pedName)
+media = moveImageDir(qie, pedName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -219,7 +252,9 @@ if(data[0] == 0 and data[1] == 0):
                            num_failed=0,
                            revoked=True,
                            comments="This test returned no testing data",
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
 else:
     temp_attempt = Attempt(card=qie,
@@ -230,7 +265,9 @@ else:
                            date_tested=test_time,
                            num_passed=data[0],
                            num_failed=data[1],
-                           log_file=url
+                           log_file=url,
+                           image=media,
+                           hidden_log_file=url,
                            )
         
 if overwrite:
@@ -239,6 +276,17 @@ if overwrite:
         prev_att.save()
 
 attemptArr.append(temp_attempt)
-        
+
+
+###############################################
+#           Submitting Attempts               #
+###############################################
 for attempt in attemptArr:
     attempt.save()
+
+###############################################
+#        Deleting Plot Folders                #
+###############################################
+rmtree(phaseName)
+rmtree(ciName)
+rmtree(pedName)

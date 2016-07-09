@@ -92,7 +92,11 @@
             </tbody>
         </table>
         {% if attempt.has_image %}
-        <a href="../media/{{attempt.image}}"><img src="../media/{{attempt.image}}" style="width:66%"></a>
+        {% if not attempt.revoked%}
+        {% for image in attempt.get_images %}
+        <a href="/cards/media/{{attempt.image}}/{{image}}"><img src="/cards/media/{{attempt.image}}/{{image}}" style="width:10%"></a>
+        {% endfor %}
+        {% endif %}
         {% endif %}
         {% endfor %}
     </div>

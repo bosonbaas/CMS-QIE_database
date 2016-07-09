@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 import datetime
+import os
 
 from .models import QieCard, Tester, Test, Attempt, Location
 import custom.filters as filters
@@ -8,6 +9,7 @@ import custom.filters as filters
 # Create your views here.
 
 from django.http import HttpResponse
+from card_db.settings import MEDIA_ROOT 
 
 
 class CatalogView(generic.ListView):
@@ -73,9 +75,12 @@ def detail(request, card):
     attempts = {}
     
     for test in tests:
-        attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk)
-        
-    return render(request, 'qie_cards/detail.html', {'card': p, 'attempts':attempts, 'locations':locations})
+        attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk) 
+ 
+    return render(request, 'qie_cards/detail.html', {'card': p,
+                                                     'attempts':attempts,
+                                                     'locations':locations,
+                                                    })
 
 class PlotView(generic.ListView):
     """ This displays various plots of data """

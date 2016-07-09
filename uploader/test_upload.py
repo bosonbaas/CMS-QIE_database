@@ -2,6 +2,8 @@ import sys
 import os
 import json
 import django
+import time
+from shutil import copyfile
 
 sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
@@ -18,14 +20,15 @@ def getUID(raw):
 
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """
+    uniquePre = str(int(time.time()))
     url = os.path.join("uploads/", qie.barcode)
     path = os.path.join(MEDIA_ROOT, url)
     if not os.path.exists(path):
         exit("Database does not contain this card's log folder")
         
-    newPath = os.path.join(path, str(timezone.now()) + os.path.basename(fileName))
-    os.rename(fileName, newPath)
-    return os.path.join(url, str(timezone.now()) + os.path.basename(fileName))
+    newPath = os.path.join(path, uniquePre + os.path.basename(fileName))
+    copyfile(fileName, newPath)
+    return os.path.join(url, uniquePre + os.path.basename(fileName))
 
 # Get filename and upload file to dictionary
 fileName = sys.argv[1]
@@ -56,7 +59,7 @@ attemptArr = []
 
 # Make URL for HR log file
 hrlog = cardData["HumanLogFile"]
-hrURL = os.path.join("human_readable_logs/", hrlog)
+hrURL = os.path.join("human_readable_logs/", hrlog + "_tests.log")
 
 #load in all test results
 for test in cardData["Tests"].keys():
@@ -83,7 +86,8 @@ for test in cardData["Tests"].keys():
                                    humidity=float(cardData["Humidity"]),
                                    revoked=True,
                                    comments="This test returned no testing data",
-                                   log_file=hrURL
+                                   log_file=hrURL,
+                                   hidden_log_file=url,
                                    )
         else:
             temp_attempt = Attempt(card=qie,
@@ -96,7 +100,8 @@ for test in cardData["Tests"].keys():
                                    num_failed=data[1],
                                    temperature=float(cardData["Temperature"]),
                                    humidity=float(cardData["Humidity"]),
-                                   log_file=hrURL
+                                   log_file=hrURL,
+                                   hidden_log_file=url,
                                    )
         
         if overwrite:
