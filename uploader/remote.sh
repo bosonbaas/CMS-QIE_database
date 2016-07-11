@@ -56,6 +56,7 @@ then
     ssh $remoteHost rm -r $remoteUHTR/histo_statistics
     ssh $remoteHost rm -r $remoteUHTR/ped_plots
     ssh $remoteHost rm -r $remoteUHTR/phase_plots
+    ssh $remoteHost rm -r $remoteUHTR/shunt_plots
 else
     echo -e "    ${SUCCESS}No uHTR files"
 fi
@@ -84,7 +85,12 @@ do
     echo -e "    ${ACTION}Processing${DEF} phase_$(basename $file)"
     cp -r $uhtrLoc/phase_plots/$file $jsonStore/phase_plot$(basename $file)
 done
-
+folderList=$(ls $uhtrLoc/shunt_plots)
+for file in $folderList
+do
+    echo -e "    ${ACTION}Processing${DEF} shunt_$(basename $file)"
+    cp -r $uhtrLoc/shunt_plots/$file $jsonStore/shunt_plot$(basename $file)
+done
 echo -e "${STATUS}uHTR Folders Copied"
 echo ""
 ###################################################

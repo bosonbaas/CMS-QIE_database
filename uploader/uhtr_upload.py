@@ -135,6 +135,9 @@ except:
 
 data = cardData[test]
 
+shuntName = os.path.join(os.path.dirname(fileName), "shunt_plot" + str(cardData["Jslot"]))
+
+media = moveImageDir(qie, shuntName)
 
 prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
 attempt_num = len(prev_attempts) + 1
@@ -149,6 +152,7 @@ if(data[0] == 0 and data[1] == 0):
                            num_failed=0,
                            revoked=True,
                            comments="This test returned no testing data",
+                           image=media,
                            log_file=url,
                            hidden_log_file=url,
                            )
@@ -161,6 +165,7 @@ else:
                            date_tested=test_time,
                            num_passed=data[0],
                            num_failed=data[1],
+                           image=media,
                            log_file=url,
                            hidden_log_file=url,
                            )
@@ -290,3 +295,4 @@ for attempt in attemptArr:
 rmtree(phaseName)
 rmtree(ciName)
 rmtree(pedName)
+rmtree(shuntName)
