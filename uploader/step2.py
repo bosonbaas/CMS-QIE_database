@@ -26,6 +26,7 @@ def loadCard(cardData, qie):
     qie.bridge_other_ver = cardData["FirmwareOth"]
     qie.igloo_major_ver = cardData["IglooMajVer"]
     qie.igloo_minor_ver = cardData["IglooMinVer"]
+    return qie
     
 def moveJsonFile(qie, fileName):
     """ Moves the json for this upload to permanent storage """
@@ -53,7 +54,55 @@ try:
 except:
     sys.exit('QIE card with barcode "%s" is not in the database' % cardData["Barcode"])
 
-loadCard(cardData, qie)
+#load time of test
+date = cardData["DateRun"] + "-06:00"
 
-newPath = moveJsonFile(qie, fileName)
-qie.save()
+#find tester account
+try:
+    tester = Tester.objects.get(username=cardData["User"])
+except:
+    sys.exit("Tester %s not valid" % cardData["User"])
+
+card = loadCard(cardData, qie)
+
+path = moveJsonFile(qie, fileName)
+
+test = "Igloo_FPGA_Control"
+try:
+    temp_test = Test.objects.get(abbreviation=test)
+except:
+    sys.exit('Test "%s" not in database' % test)
+
+prev_attempts = list(Attempt.objects.filter(card=qie, test_type=temp_test))
+attempt_num = len(prev_attempts) + 1
+card.save()
+if cardData[test]:
+    temp_attempt = Attempt(card=card,
+                           plane_loc="default",
+                           test_type=temp_test,
+                           attempt_number=attempt_num,
+                           tester=tester,
+                           date_tested=date,
+                           num_passed=1,
+                           num_failed=0,
+                           temperature=-999,
+                           humidity=-999,
+                           log_file=path,
+                           hidden_log_file=path,
+                           )
+else:
+    temp_attempt = Attempt(card=card,
+                           plane_loc="default",
+                           test_type=temp_test,
+                           attempt_number=attempt_num,
+                           tester=tester,
+                           date_tested=date,
+                           num_passed=0,
+                           num_failed=1,
+                           temperature=-999,
+                           humidity=-999,
+                           log_file=path,
+                           hidden_log_file=path,
+                           )
+
+temp_attempt.save()
