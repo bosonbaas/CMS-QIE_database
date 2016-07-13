@@ -1,26 +1,36 @@
 {% extends "qie_cards/base.html" %}
 {% load app_filters %}
 
-{% block style %}
-ul {
+{% block head %}
+<style>
+.splitColumns {
     -webkit-column-count: 2;
        -moz-column-count: 2;
             column-count: 2;
 }
+</style>
 {% endblock %}
 
 {% block title %}Card Summary{% endblock %}
 
+{% block summary %}class="active"{% endblock %}
+
 {% block content %}
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>Card Summaries</h3><br>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+</div>
+<br>
+
 <div class="row">
 	<div class="col-md-12">
 		<table class="table table-bordered table-responsive" align="center" style="width: 95%; font-size: 12px">
 		<thead>
 			<tr>
-				<th style="background-color: #F0F0F0; font-size: 16px;"> S/N </th>
-				<th colspan="1" style="background-color: #F0F0F0; text-align: center; font-size: 16px;"> Tests Remaining </th>
-				<th colspan="1" style="background-color: #D7FFCA; text-align: center; font-size: 16px;"> Tests Passed </th>
-				<th colspan="1" style="background-color: #FFD4D4; text-align: center; font-size: 16px;"> Tests Failed </th>
+				<th style="background-color: #7F8C8D; font-size: 16px;"> S/N </th>
+				<th colspan="1" style="background-color: #7F8C8D; text-align: center; font-size: 16px;"> Tests Remaining </th>
+				<th colspan="1" style="background-color: #2ECC71; text-align: center; font-size: 16px;"> Tests Passed </th>
+				<th colspan="1" style="background-color: #E74C3C; text-align: center; font-size: 16px;"> Tests Failed </th>
 			</tr>
 		</thead>
 		<tbody>
@@ -28,17 +38,17 @@ ul {
 			{% for stats in cards %}
 			<tr style="background-color: #F6F6F6">
 				<td> <a href="{{stats.barcode}}/">{{stats.barcode}}</a></td>
-				<td><ul>
+				<td><ul class="splitColumns">
 					{% for test in stats.remaining %}
 					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
-				<td><ul>
+				<td><ul class="splitColumns">
 					{% for test in stats.passed %}
 					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
-				<td><ul>
+				<td><ul class="splitColumns">
 					{% for test in stats.failed %}
 					<li> <a href="setup">{{test}}</a></li>
 					{% endfor %}

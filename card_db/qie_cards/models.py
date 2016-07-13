@@ -112,10 +112,22 @@ class QieCard(models.Model):
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
         return self.barcode[(len(self.barcode) - 3):]
-    
+
+    def get_bridge_ver(self):
+        major = str(int(self.bridge_major_ver, 16))
+        minor = str(int(self.bridge_minor_ver, 16))
+        other = str(int(self.bridge_other_ver, 16))
+        return major + "." + minor + "." + other
+  
+    def get_igloo_ver(self):
+        if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
+            return "Not Uploaded" 
+        major = str(int(self.igloo_major_ver, 16))
+        minor = str(int(self.igloo_minor_ver, 16))
+        return major + "." + minor 
+
     def __str__(self):
        return str(self.barcode)
-
 
         
 def images_location(upload, original_filename):
@@ -165,14 +177,23 @@ class Attempt(models.Model):
         """ This returns whether the attempt has a log folder """
         return (not self.log_file == "default.png")
 
+    def get_status(self):
+        if self.revoked:
+            return "REVOKED"
+        elif self.num_failed == 0:
+            return "PASS"
+        else:
+            return "FAIL"
+
     def get_css_class(self):
         """ This returns the color which the Attempt template should take """
         if self.revoked:
-            return "warning"
+            return "warn"
         elif self.num_failed == 0:
-            return "success"
+            return "okay"
         else:
-            return "danger"
+            return "bad"
+
     def get_images(self):
         path = MEDIA_ROOT + str(self.image)
         #images = [image for image in os.listdir(os.path.join(MEDIA_ROOT, self.image.url))]

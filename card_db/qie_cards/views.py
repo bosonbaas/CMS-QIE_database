@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 import datetime
-import os
+from os import listdir
 
 from .models import QieCard, Tester, Test, Attempt, Location
 import custom.filters as filters
@@ -40,10 +40,10 @@ class TestersView(generic.ListView):
         return Tester.objects.all().order_by('username')
 
 
-class SetupView(generic.ListView):
+class TestDetailsView(generic.ListView):
     """ This displays the tests and their descriptions """
 
-    template_name = 'qie_cards/setup.html'
+    template_name = 'qie_cards/test-details.html'
     context_object_name = 'test_list'
     def get_queryset(self):
         return Test.objects.all().order_by('name')
@@ -72,19 +72,48 @@ def detail(request, card):
 
     tests = Test.objects.all()
     locations = Location.objects.filter(card=p)
-    attempts = {}
-    
+    attempts = []
+    status = {}    
+
+    status["total"] = len(tests) - 1
+    status["passed"] = 0
+    failedAny = False
+
     for test in tests:
-        attempts[test.name] = Attempt.objects.filter(card=p.pk, test_type=test.pk) 
+        attemptList = Attempt.objects.filter(card=p.pk, test_type=test.pk).order_by("attempt_number")
+        if attemptList:
+            last = attemptList[len(attemptList)-1]
+            if not last.revoked:
+                if last.passed_all():
+                    status["passed"] += 1
+                else:
+                    failedAny = True
+            attempts.append((last, True))
+        else:
+            attempts.append((test.name, False))
  
+    if status["total"] == status["passed"]:
+        status["banner"] = "GOOD"
+        status["css"] = "okay"
+    elif failedAny:
+        status["banner"] = "FAILED"
+        status["css"] = "bad"
+    else:
+        status["banner"] = "INCOMPLETE"
+        status["css"] = "warn"
+
     return render(request, 'qie_cards/detail.html', {'card': p,
                                                      'attempts':attempts,
                                                      'locations':locations,
+                                                     'status':status,
                                                     })
+
 
 class PlotView(generic.ListView):
     """ This displays various plots of data """
     
     template_name = 'qie_cards/plots.html'
+    context_object_name= 'images'
     def get_queryset(self):
-        return []
+        return listdir('/home/django/testing_database/media/plots')
+

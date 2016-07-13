@@ -1,11 +1,13 @@
 {% extends "qie_cards/base.html" %}
 
-{% block style %}
-ul {
+{% block head %}
+<style>
+.splitColumns {
     -webkit-column-count: 2;
        -moz-column-count: 2;
             column-count: 2;
 }
+</style>
 {% endblock %}
 
 {% block title %}Test Database{% endblock %}
@@ -31,7 +33,7 @@ ul {
 		<tbody>
 			{% if passed %}
 			<tr align="left">
-				<td><ul style="font-size:10px">
+				<td><ul class="splitColumns" style="font-size:10px">
 				{% for card in passed.cards %}
 				<li><a href="{{card}}/">{{card}}</a></li>
 				{% endfor %}
@@ -71,7 +73,7 @@ ul {
 			{% for test in failed %}
 			<tr align="left">
 				<td> {{test.name}} </td>
-				<td><ul style="font-size:10px">
+				<td><ul class="splitColumns" style="font-size:10px">
 				{% for card in test.cards %}
 				<li><a href="{{card}}/">{{card}}</a></li>
 				{% endfor %}

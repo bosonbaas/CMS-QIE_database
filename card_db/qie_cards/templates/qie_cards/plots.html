@@ -9,18 +9,20 @@ ul {
 {% endblock %}
 
 {% block title %}Database Plots{% endblock %}
-
+{% block plots %}class="active"{% endblock %}
 {% block content %}
 
+{% for image in images %}
 <div class="row">
 	<div align="center">	
-		<h2 class="title">Plot #1</h2>
+		<h2 class="title">{{image}}</h2>
 	</div>
 </div>
 
 <div class="row">
 	<div class="center" style="width:60%">
-		<a href="media/plots/plot.png"><img src="media/plots/plot.png" ></a>
+		<a href="media/plots/{{image}}"><img src="media/plots/{{image}}" ></a>
 	</div>
 </div>
+{% endfor %}
 {% endblock %}

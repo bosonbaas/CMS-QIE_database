@@ -2,105 +2,206 @@
 {% load app_filters %}
 
 {% block title %}{{card.barcode}}{% endblock %}
+{% block head %}
+<style>
+    .warn{
+      color:#2C3E50;
+      background-color:#F1C40F;
+    }
+    .okay{
+      color:#2ECC71;
+    }
+    .bad{
+      color:#2C3E50;
+      background-color:#E74C3C;
+    }
+
+/* Center the loader */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 }
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom {
+  from{ bottom:-100px; opacity:0 }
+  to{ bottom:0; opacity:1 }
+}
+
+#myDiv {
+  display: none;
+  text-align: center;
+}
+</style>
+{% endblock %}
 
 {% block links %}
-<a href="../catalog"><button>Catalog</button></a>
-<a href="../summary"><button>Summary</button></a>
-<a href="../testers"><button>Testers</button></a>
-<a href="../setup"><button>Setup</button></a>
-<a href="../stats"><button>Stats</button></a>
+<ul class="nav navbar-nav">
+    <li {% block catalog %}{% endblock %}><a href="../catalog">Catalog</a></li>
+    <li {% block summary %}{% endblock %}><a href="../summary">Summary</a></li>
+    <li {% block testers %}{% endblock %}><a href="../testers">Testers</a></li>
+    <li {% block test-details %}{% endblock %}><a href="../test-details">Test Details</a></li>
+    <li {% block stats %}{% endblock %}><a href="../stats">Stats</a></li>
+    <li {% block plots %}{% endblock %}><a href="../plots">Plots</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="../../admin">Admin</a></li>
+</ul>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-4" align="center">
-        <h1>Barcode: {{card.barcode | default:"No barcode uploaded"}}</h1>
-        <h3>UID: {{card.get_uid_flipped | default:"No UID uploaded"}}</h3>
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>Card Overview</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+</div><br>
+
+<div class="row" align="left">
+    <div class="col-md-2" style="padding-left:50px;">
+      <h4>Barcode:</h4>
+      <h4>UID:</h4>
+      <h4>Bridge Firmware:</h4>
+      <h4>Igloo Firmware:</h4>
     </div>
+    <div class="col-md-4">
+      <h4>{{card.barcode}}</h4>
+      <h4>{{card.get_uid_flipped}}</h4>
+      <h4>{{card.get_bridge_ver}}</h4>
+      <h4>{{card.get_igloo_ver}}</h4>
+    </div>
+    <div class="col-md-1">
+      <h4>Status:</h4>
+    </div>
+    <div class="col-md-3 {{status.css}}">
+      <h4>{{status.banner}}</h4>
+      <h4>{{status.passed}}/{{status.total}} tests passing</h4>
+    </div>
+  </div><br>
+<div class="row" align="left" style="padding-left:50px;">
+  <h3>Comments:</h3>
+  <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+  <h5>{{card.comments | default:"No comment given"}}</h5>
 </div>
-<div class="row">
-    <div class="col-md-6" align="left">
-        <h3>Comments:</h3>
-        <h5>{{card.comments | default:"No comment given"}}</h5>
-    </div>
 </div>
 
-<hr/>
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>Location History</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+    <br>
+</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <h3>Locations</h3>
-        {% for location in locations %}
-        <br>
-        <h4>{{location.geo_loc}}</h4>
-        <table class="table table-bordered table-striped Portage_table" style="width: 60%; background-color: #F6F6F6;">
-            <tbody>
-                <tr>
-                    <td><b>Date:</b></td>
-                    <td colspan="3"> {{location.date_received | default:"No date recorded"}} </td>
-                </tr> 
-            </tbody>
-        </table>
-        {% endfor %}
-    </div>
+<table id="cardlocations" class="table">
+  <thead class="thead-default" style="color:#2C3E50;background-color:#ECF0F1">
+    <tr>
+      <th>Date</th>
+      <th>Location</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for location in locations %}
+    <tr>
+      <th scope="row">{{location.date_received | default:"No date recorded"}}</th>
+      <td>{{location.geo_loc}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>Test Results</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+    <br>
 </div>
-{% for test in attempts %}
-<hr/>
-<div class="row">
-    <div class="col-md-12">
-        <h3>{{test}}</h3>
-        {% for attempt in attempts|get_item:test %}
-        <br>
-        <h4>Attempt: {{attempt.attempt_number}}</h4>
-        <table class="table table-bordered table-striped Portage_table" style="width: 60%; background-color: #F6F6F6;">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Tests Passed</th>
-                     
-                    {% if not attempt.revoked %}
-                    <th>Tests Failed</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="{{attempt.get_css_class}}">
-                    <td> {{attempt.tester}} </td>
-                    <td> {{attempt.date_tested}} </td>
-                    {% if attempt.revoked %}
-                    <td><b>Revoked</b>: (see comment) </td>
-                    {% else %}
-                    <td> {{attempt.num_passed}} </td>
-                    <td> {{attempt.num_failed}} </td>
-                    {% endif %}
-                </tr>
-                <tr class="{{attempt.get_css_class}}">
-                    <td><b>Comments:</b></td>
-                    <td colspan="3"> {{attempt.comments | default:"None"}} </td>
-                </tr>
-                <tr class="{{attempt.get_css_class}}">
-                    <td><b>Image:</b></td> 
-                    <td colspan="3">{% if attempt.has_image %}<a href="../media/{{attempt.image}}">{{attempt.image}}</a>
-                                    {% else %} No image {% endif %}</td>
-                </tr>
-                <tr class="{{attempt.get_css_class}}">
-                    <td><b>Log Files:</b></td>
-                    <td colspan="3">{% if attempt.has_log %}<a href="../media/{{attempt.log_file}}">{{attempt.log_file}}</a>
-                                    {% else %} No file {% endif %}</td>
-                </tr>
-            </tbody>
-        </table>
-        {% if attempt.has_image %}
-        {% if not attempt.revoked%}
-        {% for image in attempt.get_images %}
-        <a href="/cards/media/{{attempt.image}}/{{image}}"><img src="/cards/media/{{attempt.image}}/{{image}}" style="width:10%"></a>
-        {% endfor %}
-        {% endif %}
-        {% endif %}
-        {% endfor %}
-    </div>
+
+<div class="row" align="right" style="padding-right:50px;">
+  Search: <input type="text" style="color:#2C3E50" id="searchfield">
 </div>
-<br/>
-{% endfor %}
+<br>
+
+<table id="testsummary" class="table table-bordered" cellspacing="0" width="100%">
+  <thead class="thead-default" style="color:#2C3E50;background-color:#ECF0F1">
+    <tr data-toggle="collapse" data-target="#accordion" class="clickable">
+      <th>Test<span class="fui-list-numbered" style="float:right"></span></th>
+      <th>Pass/Fail <span class="fui-list-numbered" style="float:right"></span></th>
+      <th>Date <span class="fui-list-numbered" style="float:right"></span></th>
+      <th>Historic Pass/Fail</th>
+      <th>More</th>
+    </tr>
+  </thead>
+  <tbody>
+    <div id="accordion" class="collapse">
+    {% for attempt, valid in attempts %}
+    {% if valid %}
+    <tr>
+      <th scope="row">{{attempt.test_type}}</th>
+      <td class="{{attempt.get_css_class}}">{{attempt.get_status}}</td>
+      <td>{{attempt.date_tested}}</td>
+      <td>{{attempt.num_passed}}/{{attempt.num_failed}}</td>
+      <td>[link to history]</td>
+    </tr> 
+    {% else %}
+    <tr>
+      <th scope="row">{{attempt}}</th>
+      <td class="warn">REMAINING</td>
+      <td>N/A</td>
+      <td>N/A</td>
+      <td>N/A</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+  </div>
+  </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-1.12.3.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+    oTable = $('#testsummary').DataTable({
+      "paging":   false,
+      dom: 'lrtp',
+    }
+    );
+    $('#searchfield').keyup(function(){
+          oTable.search($(this).val()).draw();
+    })
+} );
+</script>
+
+
 {% endblock %}

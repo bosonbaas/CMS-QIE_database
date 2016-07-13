@@ -1,27 +1,27 @@
 {% extends "qie_cards/base.html" %}
-{% block title %}HF QIE Card Test Database{% endblock %}
-
-{% block style %}
-ul {
-    -webkit-column-count: 4;
-       -moz-column-count: 4;
-            column-count: 4;
-}
+{% block head %}
+    <link href="/static/qie_cards/css/catalog.css" rel="stylesheet">
 {% endblock %}
 
+{% block title %}HF QIE Card Test Database{% endblock %}
+
+{% block catalog %}class="active"{% endblock %}
+
 {% block content %}
-<div class="row">
-	<div class="col-md-3" align="center">
-		<h2>All Cards:</h2>
-		<strong><em>(Sorted by serial number)</em></strong>
-	</div>
+<div class="row" align="left" style="padding-left:50px;">
+	<h3>Card Catalog</h3><br>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div>
-<br><br>	
+<br><br>
+
+<div class="row" style="padding-left:50px;padding-right:50px">
+    <div class="splitColumns">
+      <ul>
 {% if barcode_list %}
 <div class="row">
 	<div align="center"><ul>
 	{% for card in barcode_list %}
-		<li style="font-size:18px"><a href="{{card.barcode}}/">{{card.barcode}}</a></li>
+  		<li style="font-size:18px"><a href="{{card.barcode}}/">{{card.barcode}}</a></li>
 	{%endfor%}
 	</ul></div>
 </div>
