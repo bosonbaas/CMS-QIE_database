@@ -25,4 +25,4 @@ tar -zcf $dest.tar.gz -C $mediaPath $media -C $commonPath card_db --exclude .git
 #                  Network Backup                 #
 ###################################################
 
-rsync -a --delete $backupPath $remoteSSH:$remoteBackup
+rsync -a $backupPath $remoteSSH:$remoteBackup
