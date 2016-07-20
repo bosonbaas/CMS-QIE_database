@@ -15,58 +15,15 @@
       color:#2C3E50;
       background-color:#E74C3C;
     }
+    .comments{
+      margin-left:50px;
+      background:#27ae60;
+      width: 400px;
+      -moz-border-radius: 4px;
+      -webkit-border-radius: 4px;
+      border-radius: 4px;
+    }
 
-/* Center the loader */
-#loader {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 1;
-  width: 150px;
-  height: 150px;
-  margin: -75px 0 0 -75px;
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-}
-
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Add animation to "page content" */
-.animate-bottom {
-  position: relative;
-  -webkit-animation-name: animatebottom;
-  -webkit-animation-duration: 1s;
-  animation-name: animatebottom;
-  animation-duration: 1s
-}
-
-@-webkit-keyframes animatebottom {
-  from { bottom:-100px; opacity:0 }
-  to { bottom:0px; opacity:1 }
-}
-
-@keyframes animatebottom {
-  from{ bottom:-100px; opacity:0 }
-  to{ bottom:0; opacity:1 }
-}
-
-#myDiv {
-  display: none;
-  text-align: center;
-}
 </style>
 {% endblock %}
 
@@ -85,13 +42,14 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="row" align="left" style="padding-left:50px;">
     <h3>Card Overview</h3>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
 
 <div class="row" align="left">
-    <div class="col-md-2" style="padding-left:50px;">
+    <div class="col-md-3" style="padding-left:50px;">
       <h4>Barcode:</h4>
       <h4>UID:</h4>
       <h4>Bridge Firmware:</h4>
@@ -111,10 +69,19 @@
       <h4>{{status.passed}}/{{status.total}} tests passing</h4>
     </div>
   </div><br>
-<div class="row" align="left" style="padding-left:50px;">
+<div class="row" align="left" style="padding-left:50px;width: 100%">
   <h3>Comments:</h3>
-  <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
-  <h5>{{card.comments | default:"No comment given"}}</h5>
+  <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C;"></div>
+  <p style="width:100%; white-space: pre-wrap;">{{card.comments | default:"No comment given"}}</p>
+
+</div>
+<div class="row" align="left" style="padding-left:100px;width:50%"> 
+    <form action="" method="post">
+        {% csrf_token %} 
+        <h4>Add a Comment</h4>
+        <textarea name="comment" rows="4" cols="20" class="form-control" placeholder="Comment..."></textarea>
+        <input type="submit" class="btn btn-primary" value="Submit" name="mybutton">
+    </form>
 </div>
 </div>
 
@@ -171,7 +138,7 @@
       <td class="{{attempt.get_css_class}}">{{attempt.get_status}}</td>
       <td>{{attempt.date_tested}}</td>
       <td>{{attempt.num_passed}}/{{attempt.num_failed}}</td>
-      <td>[link to history]</td>
+      <td><a href="{{attempt.test_type}}">[link to history]</a></td>
     </tr> 
     {% else %}
     <tr>

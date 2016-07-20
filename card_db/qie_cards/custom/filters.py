@@ -42,8 +42,8 @@ def getPassedCards(cards, tests, attempts):
     passedCards = []
     
     for card in cardStates:
-        if card["failed"] == 0 and card["remaining"] == 0:
-            passedCards.append(card.barcode)
+        if len(card["failed"]) == 0 and len(card["remaining"]) == 0:
+            passedCards.append(card["barcode"])
             
     return passedCards
 

@@ -40,17 +40,17 @@
 				<td> <a href="{{stats.barcode}}/">{{stats.barcode}}</a></td>
 				<td><ul class="splitColumns">
 					{% for test in stats.remaining %}
-					<li> <a href="setup">{{test}}</a></li>
+					<li> <a href="{{stats.barcode}}/{{test}}">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 				<td><ul class="splitColumns">
 					{% for test in stats.passed %}
-					<li> <a href="setup">{{test}}</a></li>
+					<li> <a  href="{{stats.barcode}}/{{test}}">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 				<td><ul class="splitColumns">
 					{% for test in stats.failed %}
-					<li> <a href="setup">{{test}}</a></li>
+					<li> <a  href="{{stats.barcode}}/{{test}}">{{test}}</a></li>
 					{% endfor %}
 				</ul></td>
 			</tr>

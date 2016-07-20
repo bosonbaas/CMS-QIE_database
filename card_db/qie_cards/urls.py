@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^test-details$', views.TestDetailsView.as_view(), name='test-details'),
     url(r'^(?P<card>[0-9]{7})/$', views.detail, name='detail'),
     url(r'^media/(?P<path>.*)$',serve, {'document_root':MEDIA_ROOT}),
-    url(r'^plots$', views.PlotView.as_view(), name='plots')
+    url(r'^plots$', views.PlotView.as_view(), name='plots'),
+    url(r'^(?P<card>[0-9]{7})/(?P<test>.*)$', views.testDetail, name='testDetail'),
 ]

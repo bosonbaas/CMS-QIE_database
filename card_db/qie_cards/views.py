@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.views import generic
 import datetime
-from os import listdir
+from os import listdir, path
+import json
 
 from .models import QieCard, Tester, Test, Attempt, Location
 import custom.filters as filters
 
 # Create your views here.
 
+from django.utils import timezone
 from django.http import HttpResponse
 from card_db.settings import MEDIA_ROOT 
 
@@ -52,9 +54,9 @@ class TestDetailsView(generic.ListView):
 def stats(request):
     """ This displays a summary of the cards """
     
-    attempts = list(Attempt.objects.all())   
+    attempts = list(Attempt.objects.exclude(test_type=Test.objects.get(abbreviation="overall phase scan")))   
     cards = list(QieCard.objects.all().order_by("barcode"))
-    tests = list(Test.objects.all()) 
+    tests = list(Test.objects.exclude(abbreviation="overall phase scan")) 
  
     testFailedStats = filters.getFailedCardStats(cards, tests, attempts)
     testPassedStats = filters.getPassedCardStats(cards, tests, attempts)
@@ -102,6 +104,14 @@ def detail(request, card):
         status["banner"] = "INCOMPLETE"
         status["css"] = "warn"
 
+    if(request.POST.get('mybutton')):
+        comment = ""
+        if not p.comments == "":
+            comment += "\n"
+        comment += str(timezone.now().date()) + " " + str(timezone.now().hour) + "." + str(timezone.now().minute) + ": " + request.POST.get('comment')
+        p.comments += comment
+        p.save()
+
     return render(request, 'qie_cards/detail.html', {'card': p,
                                                      'attempts':attempts,
                                                      'locations':locations,
@@ -116,4 +126,39 @@ class PlotView(generic.ListView):
     context_object_name= 'images'
     def get_queryset(self):
         return listdir('/home/django/testing_database/media/plots')
+
+def testDetail(request, card, test):
+    try:
+        qieCard = QieCard.objects.get(barcode=card)
+    except QieCard.DoesNotExist:
+        raise Http404("QIE card does not exist")
+    try:
+        curTest = Test.objects.get(name=test)
+    except QieCard.DoesNotExist:
+        raise Http404("QIE card does not exist")
+
+    attemptList = list(Attempt.objects.filter(card=qieCard, test_type=curTest).order_by("attempt_number").reverse())
+    attemptData = []
+    for attempt in attemptList:
+        data = ""
+        if not str(attempt.hidden_log_file) == "default.png":
+            inFile = open(path.join(MEDIA_ROOT, str(attempt.hidden_log_file)), "r")
+            tempDict = json.load(inFile)
+            if attempt.test_type.abbreviation == "overall pedestal": 
+                data = tempDict["TestOutputs"]["pedResults"]
+            elif attempt.test_type.abbreviation == "overall charge injection": 
+                data = tempDict["TestOutputs"]["ciResults"]
+            elif attempt.test_type.abbreviation == "overall phase scan":
+                data = tempDict["TestOutputs"]["phaseResults"]
+            elif attempt.test_type.abbreviation == "overall shunt scan":
+                data = tempDict["TestOutputs"]["shuntResults"]
+            elif "ResultStrings" in tempDict:
+                data = tempDict["ResultStrings"][attempt.test_type.abbreviation]
+        attemptData.append((attempt, data))
+
+    return render(request, 'qie_cards/testDetail.html', {'card': qieCard,
+                                                         'test': curTest,
+                                                         'attempts': attemptData,
+                                                        })
+
 
