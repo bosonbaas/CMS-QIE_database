@@ -114,6 +114,8 @@ class QieCard(models.Model):
         return self.barcode[(len(self.barcode) - 3):]
 
     def get_bridge_ver(self):
+        if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
+            return "Not Uploaded" 
         major = str(int(self.bridge_major_ver, 16))
         minor = str(int(self.bridge_minor_ver, 16))
         other = str(int(self.bridge_other_ver, 16))
