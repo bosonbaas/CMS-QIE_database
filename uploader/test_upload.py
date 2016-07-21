@@ -107,7 +107,7 @@ for test in cardData["Tests"].keys():
         if overwrite:
             for prev_att in prev_attempts:
                 prev_att.revoked = True
-                prev_att.save()
+                attemptArr.append(prev_att)
 
         attemptArr.append(temp_attempt)
         

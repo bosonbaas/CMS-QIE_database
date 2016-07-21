@@ -42,4 +42,6 @@ for attempt in attempts:
             testStates[str(attempt.test_type_id)][attempt.card_id]["date"] = calendar.timegm(attempt.date_tested.timetuple())
             testStates[str(attempt.test_type_id)][attempt.card_id]["state"] = REMAIN
 
-print json.dumps(testStates)
+with open("../media/plots/plot.json", 'w') as f:
+    json.dump(testStates, f)
+f.close()

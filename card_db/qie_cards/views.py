@@ -123,9 +123,9 @@ class PlotView(generic.ListView):
     """ This displays various plots of data """
     
     template_name = 'qie_cards/plots.html'
-    context_object_name= 'images'
+    context_object_name= 'tests'
     def get_queryset(self):
-        return listdir('/home/django/testing_database/media/plots')
+        return list(Test.objects.all())
 
 def testDetail(request, card, test):
     try:
