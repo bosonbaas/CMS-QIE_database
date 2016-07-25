@@ -35,7 +35,6 @@
 </div>
 
 <script>
-getData([109])
 function updateData(){
     boxes = document.getElementsByName('test');
     tests = []
@@ -69,6 +68,7 @@ function firstTests(){
            "Program",
            "Vis",
            "SuplCur",
+           "Igloo_FPGA_Control",
            ];
 
     boxes = document.getElementsByName('test');
@@ -78,34 +78,36 @@ function firstTests(){
     for(var i = 0; i < tests.length; i++){
         document.getElementById(tests[i]).checked = true;
     }
+    updateData();
 }
 
 function secondTests(){
     notTests=[
-            "Res_1",
-            "Res_2",
-            "Res_3",
-            "Res_4",
-            "Res_5",
-            "Res_6",
-            "Res_7",
-            "Res_8",
-            "Res_9",
-            "Res_10",
-            "Res_11",
-            "Res_12",
-            "Res_13",
-            "Res_14",
-            "Res_15",
-            "Res_16",
-            "Program",
-            "Vis",
-            "SuplCur",
-            "overall phase scan",
-            "ClockCnt",
-            "QIECount",
-            "WTECount",
-            ];
+              "Res_1",
+              "Res_2",
+              "Res_3",
+              "Res_4",
+              "Res_5",
+              "Res_6",
+              "Res_7",
+              "Res_8",
+              "Res_9",
+              "Res_10",
+              "Res_11",
+              "Res_12",
+              "Res_13",
+              "Res_14",
+              "Res_15",
+              "Res_16",
+              "Program",
+              "Vis",
+              "SuplCur",
+              "overall phase scan",
+              "ClockCnt",
+              "QIECount",
+              "WTECount",
+              "Igloo_FPGA_Control",
+             ];
 
     boxes = document.getElementsByName('test');
     for (i = 0; i < boxes.length; i++) {
@@ -114,13 +116,11 @@ function secondTests(){
     for(var i = 0; i < notTests.length; i++){
         document.getElementById(notTests[i]).checked = false;
     }
+    updateData();
 }
 function allTests(){
-    notTests=[
-            "overall phase scan",
-            "ClockCnt",
-            "QIECount",
-            "WTECount",
+    notTests=[{% for test in tests %}{% if not test.required %}
+                "{{test.abbreviation}}",{% endif %}{% endfor %}
             ];
 
     boxes = document.getElementsByName('test');
@@ -130,6 +130,9 @@ function allTests(){
     for(var i = 0; i < notTests.length; i++){
         document.getElementById(notTests[i]).checked = false;
     }
+    updateData();
 }
+
+firstTests()
 </script>
 {% endblock %}

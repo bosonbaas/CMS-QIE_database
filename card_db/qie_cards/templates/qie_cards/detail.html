@@ -4,6 +4,10 @@
 {% block title %}{{card.barcode}}{% endblock %}
 {% block head %}
 <style>
+    .forced{
+      color:#2C3E50;
+      background-color:#2ECC71;
+    }
     .warn{
       color:#2C3E50;
       background-color:#F1C40F;
@@ -50,29 +54,29 @@
 
 <div class="row" align="left">
     <div class="col-md-3" style="padding-left:50px;">
-      <h4>Barcode:</h4>
-      <h4>UID:</h4>
-      <h4>Bridge Firmware:</h4>
-      <h4>Igloo Firmware:</h4>
+        <h4>Barcode:</h4>
+        <h4>UID:</h4>
+        <h4>Bridge Firmware:</h4>
+        <h4>Igloo Firmware:</h4>
     </div>
     <div class="col-md-4">
-      <h4>{{card.barcode}}</h4>
-      <h4>{{card.get_uid_flipped}}</h4>
-      <h4>{{card.get_bridge_ver}}</h4>
-      <h4>{{card.get_igloo_ver}}</h4>
+        <h4>{{card.barcode}}</h4>
+        <h4>{{card.get_uid_flipped}}</h4>
+        <h4>{{card.get_bridge_ver}}</h4>
+        <h4>{{card.get_igloo_ver}}</h4>
     </div>
     <div class="col-md-1">
-      <h4>Status:</h4>
+        <h4>Status:</h4>
     </div>
     <div class="col-md-3 {{status.css}}">
-      <h4>{{status.banner}}</h4>
-      <h4>{{status.passed}}/{{status.total}} tests passing</h4>
+        <h4>{{status.banner}}</h4>
+        <h4>{{status.passed}}/{{status.total}} tests passing</h4>
     </div>
-  </div><br>
+</div><br>
 <div class="row" align="left" style="padding-left:50px;width: 100%">
-  <h3>Comments:</h3>
-  <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C;"></div>
-  <p style="width:100%; white-space: pre-wrap;">{{card.comments | default:"No comment given"}}</p>
+    <h3>Comments:</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C;"></div>
+    <p style="width:100%; white-space: pre-wrap;">{{card.comments | default:"No comment given"}}</p>
 
 </div>
 <div class="row" align="left" style="padding-left:100px;width:50%"> 
@@ -80,9 +84,8 @@
         {% csrf_token %} 
         <h4>Add a Comment</h4>
         <textarea name="comment" rows="4" cols="20" class="form-control" placeholder="Comment..."></textarea>
-        <input type="submit" class="btn btn-primary" value="Submit" name="mybutton">
+        <input type="submit" class="btn btn-primary" value="Submit" name="comment_add">
     </form>
-</div>
 </div>
 
 <div class="row" align="left" style="padding-left:50px;">
@@ -108,6 +111,15 @@
   </tbody>
 </table>
 
+<div class="row" align="left" style="padding-left:100px;width:50%"> 
+    <form action="" method="post">
+        {% csrf_token %} 
+        <h4>Add a Location</h4>
+        <input name="location" type="text" class="form-control" placeholder="Location...">
+        <input type="submit" class="btn btn-primary" value="Submit" name="location_add">
+    </form>
+</div>
+
 <div class="row" align="left" style="padding-left:50px;">
     <h3>Test Results</h3>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
@@ -131,19 +143,27 @@
   </thead>
   <tbody>
     <div id="accordion" class="collapse">
-    {% for attempt, valid in attempts %}
-    {% if valid %}
+    {% for item in attempts %}
+    {% if item.valid %}
     <tr>
-      <th scope="row">{{attempt.test_type}}</th>
-      <td class="{{attempt.get_css_class}}">{{attempt.get_status}}</td>
-      <td>{{attempt.date_tested}}</td>
-      <td>{{attempt.num_passed}}/{{attempt.num_failed}}</td>
-      <td><a href="{{attempt.test_type}}">[link to history]</a></td>
+      <th scope="row">{{item.attempt.test_type}}</th>
+      <td class="{{item.attempt.get_css_class}}">{{item.attempt.get_status}}
+          {% if not item.required %}
+          (NOT REQ)
+          {% endif %}
+      </td>
+      <td>{{item.attempt.date_tested}}</td>
+      <td>{{item.attempt.num_passed}}/{{item.attempt.num_failed}}</td>
+      <td><a href="{{item.attempt.test_type}}">[link to history]</a></td>
     </tr> 
     {% else %}
     <tr>
-      <th scope="row">{{attempt}}</th>
-      <td class="warn">REMAINING</td>
+      <th scope="row">{{item.attempt}}</th>
+      <td class="warn">REMAINING
+          {% if not item.required %}
+          (NOT REQ)
+          {% endif %}
+      </td>
       <td>N/A</td>
       <td>N/A</td>
       <td>N/A</td>
@@ -171,4 +191,22 @@ $(document).ready(function() {
 </script>
 
 
+{% endblock %}
+{% block script %}
+<script>
+function search(e){
+    cardID = document.getElementById("navbarInput").value;
+    if( cardID.length == 7){
+        e.preventDefault();
+        window.location= "../" + cardID;
+    } else {
+        appendage = "06";
+        while(appendage.length + cardID.length < 7){
+            appendage = appendage + "0";
+        }
+        e.preventDefault();
+        window.location= "../" + appendage + cardID;
+    }
+}
+</script>
 {% endblock %}
