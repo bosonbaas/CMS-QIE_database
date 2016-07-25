@@ -5,6 +5,10 @@
 
 {% block head %}
 <style>
+    .forced{
+      color:#2C3E50;
+      background-color:#2ECC71;
+    }
     .warn{
       color:#2C3E50;
       background-color:#F1C40F;
@@ -67,12 +71,29 @@
       <h4>{{card.get_igloo_ver}}</h4>
     </div>
   </div><br>
-<div class="row">
+<div class="row" style="padding-left:25px;">
     <div class="col-md-12">
         <h3>{{test}}</h3>
         {% for attempt, data in attempts %}
         <br>
-        <h4 class="{{attempt.get_css_class}}" style="width:60%;">Attempt: {{attempt.attempt_number}} ({{attempt.get_status}})</h4>
+        <div class="row">
+            <div style="float:left;width:60%">
+                <h4 class="{{attempt.get_css_class}}">Attempt: {{attempt.attempt_number}} ({{attempt.get_status}})</h4>
+            </div>
+            <div style="float:left">
+                <form action="" method="post" id="overwrite_form">
+                    {% csrf_token %}
+                    <input value="" id="password" name="secret" hidden>
+                    <button onclick="submitOverwrite()" type="submit" class="btn btn-primary" value="{{attempt.pk}}" name="overwrite_pass">
+                        {% if not attempt.overwrite_pass %}
+                        Force Pass
+                        {% else %}
+                        Remove Force Pass
+                        {% endif %}
+                    </button>
+                </form> 
+            </div>
+        </div>
         <div style="padding-left:50px;">
             <table id="testsummary" class="table table-bordered" cellspacing="0" style="width:60%;">
                 <thead class="thead-default" style="color:#2C3E50;background-color:#ECF0F1">
@@ -119,4 +140,30 @@
     </div>
 </div>
 <br/>
+<script>
+function submitOverwrite(){
+    var pass = window.prompt("Tell me a secret:","Secret...");
+    document.getElementById("password").value = pass;
+    document.getElementById("overwrite_form").submit();
+}
+</script>
+{% endblock %}
+{% block script %}
+<script>
+function search(e){
+    cardID = document.getElementById("navbarInput").value;
+    
+    if( cardID.length == 7){
+        e.preventDefault();
+        window.location= "../" + cardID;
+    } else {
+        appendage = "06";
+        while(appendage.length + cardID.length < 7){
+            appendage = appendage + "0";
+        }
+        e.preventDefault();
+        window.location= "../" + appendage + cardID;
+    }
+}
+</script>
 {% endblock %}

@@ -158,6 +158,7 @@ class Attempt(models.Model):
     num_passed = models.IntegerField(default=-1)
     num_failed = models.IntegerField(default=-1)
     revoked = models.BooleanField(default=False)
+    overwrite_pass = models.BooleanField(default=False)
     temperature = models.FloatField(default=-999.9)
     humidity = models.FloatField(default=-999.9)
     comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
@@ -182,6 +183,8 @@ class Attempt(models.Model):
     def get_status(self):
         if self.revoked:
             return "REVOKED"
+        elif self.overwrite_pass:
+            return "PASS (FORCED)"
         elif self.num_failed == 0:
             return "PASS"
         else:
@@ -191,6 +194,8 @@ class Attempt(models.Model):
         """ This returns the color which the Attempt template should take """
         if self.revoked:
             return "warn"
+        elif self.overwrite_pass:
+            return "forced"
         elif self.num_failed == 0:
             return "okay"
         else:
