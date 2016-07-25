@@ -135,9 +135,10 @@ def getCardTestStates(cards, tests, attempts):
     for attempt in attempts:
         if not attempt.revoked:
             testInd = testsToInd[attempt.test_type_id];
-            if not attempt.num_failed == 0:
+
+            if not attempt.num_failed == 0 and not attempt.overwrite_pass:
                 state[attempt.card_id][testInd] = 2
-            elif not attempt.num_passed == 0 and state[attempt.card_id][testInd] == 0:
+            elif (not attempt.num_passed == 0 or attempt.overwrite_pass) and state[attempt.card_id][testInd] == 0:
                 state[attempt.card_id][testInd] = 1
 
     cardStat = []
@@ -164,6 +165,29 @@ def getCardTestStates(cards, tests, attempts):
         tempDict['remaining'] = curRem
         cardStat.append(tempDict)
     return cardStat
+
+def getRemCardStates(cards, tests, attempts):
+    """ Returns a list of cards which need each test """
+    cardStates = getCardTestStates(cards, tests, attempts)
+    
+    testStat = {}
+    for test in tests:
+        testStat[test.name] = []
+
+    for i in xrange(len(cardStates)):
+        barcode = cardStates[i]['barcode']
+        for test in cardStates[i]['remaining']:
+            testStat[test].append(barcode)
+
+    finalStats = []
+    for name in testStat:
+        tempStat = {"name": name}
+        tempStat["cards"] = testStat[name]
+        tempStat["number"] = len(tempStat["cards"])
+        tempStat["percentage"] = round( float(len(tempStat["cards"]))/len(cards) * 100, 1)
+        finalStats.append(tempStat)
+    return sorted(finalStats, key=lambda k: k['percentage'], reverse=True)
+
 
 def getFailedCardStats(cards, tests, attempts):
     """ Returns a list of failed cards for each test """
