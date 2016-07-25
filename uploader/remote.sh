@@ -14,9 +14,10 @@ uhtrLoc=$scriptLoc/uhtr_results
 rm -f $logLoc/*.log
 
 remoteHost=hep@cmshcal12
-remoteLoc=/home/hep/jsonResults
-remoteHRLog=/home/hep/logResults
-remoteUHTR=/home/hep/uhtrResults
+remoteArchive=$1
+remoteLoc=$remoteArchive/jsonResults
+remoteHRLog=$remoteArchive/logResults
+remoteUHTR=$remoteArchive/uhtrResults
 
 STATUS="\e[1;34m"
 ACTION="\e[1;33m"
@@ -26,6 +27,7 @@ DEF="\e[39;0m"
 
 echo -e "${STATUS}Initial data set"
 echo ""
+
 ###################################################
 #            Retrieve Remote Files                #
 ###################################################
@@ -34,9 +36,6 @@ echo -e "${STATUS}Retrieving remote files"
 if rsync -aq $remoteHost:$remoteLoc/*.json $jsonStore 2> /dev/null
 then
     echo -e "    ${STATUS}Retrieving .json"
-    ssh $remoteHost rm -f $remoteLoc/*step1_raw.json
-    ssh $remoteHost rm -f $remoteLoc/*test_raw.json
-    ssh $remoteHost rm -f $remoteLoc/*.json
 else
     echo -e "    ${SUCCESS}No remote json files"
 fi
@@ -44,7 +43,6 @@ fi
 if rsync -aq $remoteHost:$remoteHRLog/*.log $hrLogLoc 2> /dev/null
 then
     echo -e "    ${STATUS}Retrieving HR log files"
-    ssh $remoteHost rm -f $remoteHRLog/*.log
 else
     echo -e "    ${SUCCESS}No HR Log files"
 fi
@@ -52,11 +50,6 @@ fi
 if rsync -aq --delete $remoteHost:$remoteUHTR/ $uhtrLoc 2> /dev/null
 then
     echo -e "    ${STATUS} Retrieving uHTR plots"
-    ssh $remoteHost rm -r $remoteUHTR/ci_plots
-    ssh $remoteHost rm -r $remoteUHTR/histo_statistics
-    ssh $remoteHost rm -r $remoteUHTR/ped_plots
-    ssh $remoteHost rm -r $remoteUHTR/phase_plots
-    ssh $remoteHost rm -r $remoteUHTR/shunt_plots
 else
     echo -e "    ${SUCCESS}No uHTR files"
 fi
@@ -64,7 +57,7 @@ fi
 echo -e "${STATUS}Remote files retrieved"
 echo ""
 ###################################################
-#            Make Tarballs for uHTR               #
+#             Make Folders for uHTR               #
 ###################################################
 echo -e "${STATUS}Copying uHTR Folders"
 folderList=$(ls $uhtrLoc/ci_plots)
@@ -148,8 +141,15 @@ fi
 echo -e "${STATUS}uHTR tests uploaded"
 echo ""
 
-
 # Move log files to proper folder
 mv $jsonStore/*.log $logLoc 2> /dev/null
+
+# Remove any remaining folders in the json area
+rm -r $jsonStore/phase_plot*
+rm -r $jsonStore/ped_plot*
+rm -r $jsonStore/shunt_plot*
+rm -r $jsonStore/ci_plot*
+rm -r $jsonStore/*.json
+rm -r $jsonStore/*.log
 
 echo -e "${STATUS}Finished${DEF}"
