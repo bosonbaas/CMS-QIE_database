@@ -7,8 +7,10 @@
 card_db/qie_cards/migrations/**
 !card_db/qie_cards/migrations/__init__.py
 card_db/test.log
-card_db/todo
+todo
 media
 **.tar.gz
 **.log
 card_db/static
+db_edits/
+uploader/uhtr_results/
