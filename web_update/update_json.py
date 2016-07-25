@@ -32,7 +32,7 @@ for test in tests:
 for attempt in attempts:
     curState = testStates[str(attempt.test_type_id)][attempt.card_id]["state"]
     if not curState == FAILED:
-        if attempt.passed_all() and not attempt.revoked:
+        if (attempt.passed_all() or attempt.overwrite_pass) and not attempt.revoked:
             testStates[str(attempt.test_type_id)][attempt.card_id]["date"] = calendar.timegm(attempt.date_tested.timetuple())
             testStates[str(attempt.test_type_id)][attempt.card_id]["state"] = PASSED
         elif not attempt.num_failed == 0 and not attempt.revoked:
@@ -42,6 +42,6 @@ for attempt in attempts:
             testStates[str(attempt.test_type_id)][attempt.card_id]["date"] = calendar.timegm(attempt.date_tested.timetuple())
             testStates[str(attempt.test_type_id)][attempt.card_id]["state"] = REMAIN
 
-with open("../media/plots/plot.json", 'w') as f:
+with open("/home/django/testing_database/media/plots/plots.json", 'w') as f:
     json.dump(testStates, f)
 f.close()
