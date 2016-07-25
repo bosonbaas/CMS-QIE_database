@@ -13,11 +13,6 @@ uhtrLoc=$scriptLoc/uhtr_results
 
 rm -f $logLoc/*.log
 
-remoteHost=hep@cmshcal12
-remoteLoc=/home/hep/jsonResults
-remoteHRLog=/home/hep/logResults
-remoteUHTR=/home/hep/uhtrResults
-
 STATUS="\e[1;34m"
 ACTION="\e[1;33m"
 SUCCESS="\e[1;92m"

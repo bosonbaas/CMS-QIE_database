@@ -48,11 +48,15 @@ cardData = json.load(infile)
 # Upload data to the database
 
 barcode = cardData["Barcode"]
+uid = cardData["Unique_ID"]
 
-try:    
-    qie = QieCard.objects.get(barcode=barcode)
+try:
+    qie = QieCard.objects.get(uid=uid)
 except:
-    sys.exit('QIE card with barcode "%s" is not in the database' % cardData["Barcode"])
+    try:    
+        qie = QieCard.objects.get(barcode=barcode)
+    except:
+        sys.exit('QIE card with barcode "%s" is not in the database' % cardData["Barcode"])
 
 #load time of test
 date = cardData["DateRun"] + "-06:00"
@@ -104,5 +108,9 @@ else:
                            log_file=path,
                            hidden_log_file=path,
                            )
+
+for attempt in prev_attempts:
+    attempt.revoked = True
+    attempt.save()
 
 temp_attempt.save()

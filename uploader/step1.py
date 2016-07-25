@@ -54,7 +54,7 @@ def loadTests(qie, tester, date, testData, path, overwrite):
                                        attempt_number=attempt_num,
                                        tester=tester,
                                        date_tested=date,
-                                      num_passed=1,
+                                       num_passed=1,
                                        num_failed=0,
                                        temperature=-999,
                                        humidity=-999,
