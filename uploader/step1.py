@@ -1,13 +1,29 @@
+"""
+#   step1.py:
+#       This script accepts a properly formatted .json file and uploads it
+#       to the database. The json file should contain results from Step 1
+#       of Test Stand 1.
+"""
+
+__author__  = "Andrew Baas"
+__credits__ = ["Shaun Hogan", "Mason Dorseth", "John Lawrence",
+                "Jordan Potarf", "Joe Pastika", "Andrew Baas"]
+
+__version__     = "2.01"
+__maintainer__  = "Caleb Smith"
+__email__       = "caleb_smith2@baylor.edu"
+__status__      = "Live"
+
 import sys
 import os
 import json
 import django
 from shutil import copyfile
+from django.utils import timezone
 
 sys.path.insert(0, '/home/django/testing_database/card_db')
 django.setup()
 
-from django.utils import timezone
 from qie_cards.models import Test, Tester, Attempt, Location, QieCard
 from card_db.settings import MEDIA_ROOT
 
@@ -16,7 +32,7 @@ def loadCard(cardData, overwrite):
     comments =  cardData["TestComment"]
     barcode =   cardData["Barcode"]
 
-    #find or create qie card for database
+    # find or create the qie card for the database
     if overwrite:
         try:
             card = QieCard.objects.get(barcode=barcode)
@@ -32,6 +48,7 @@ def loadCard(cardData, overwrite):
             card = QieCard(barcode=barcode,
                            comments=comments
                            )
+
     return card
 
 def loadTests(qie, tester, date, testData, path, overwrite):

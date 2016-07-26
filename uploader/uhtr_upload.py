@@ -1,3 +1,19 @@
+"""
+#   uhtr_upload.py:
+#       This script accepts a properly formatted .json file and uploads it
+#       to the database. The json file should contain uhtr test results
+#       of Test Stand 2.
+"""
+
+__author__  = "Andrew Baas"
+__credits__ = ["Shaun Hogan", "Mason Dorseth", "John Lawrence",
+                "Jordan Potarf", "Joe Pastika", "Andrew Baas"]
+
+__version__     = "2.01"
+__maintainer__  = "Caleb Smith"
+__email__       = "caleb_smith2@baylor.edu"
+__status__      = "Live"
+
 import sys
 from shutil import copyfile, copytree, rmtree
 import os

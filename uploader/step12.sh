@@ -1,23 +1,36 @@
 #!/bin/bash
 
+# step12.sh: This script manages the upload of Test Stand 1 json files.
+#
+# Author:   Andrew Baas
+# Credits:  Shaun Hogan, Mason Dorseth, John Lawrence, Jordan Potarf,
+#                Andrew Baas
+# 
+# Version:  1.02
+# Maintainer:   Caleb Smith
+# Email:    caleb_smith2@baylor.edu
+# Status:   Live
+
 ###################################################
 #               Set Initial Data                  #
 ###################################################
 echo -e "\e[1;34mSetting initial data"
 
-scriptLoc=$(readlink -f $(dirname $0) )
-jsonStore=$scriptLoc/temp_json
-logLoc=$scriptLoc/log_files
-hrLogLoc=$scriptLoc/../media/human_readable_logs
-uhtrLoc=$scriptLoc/uhtr_results
+# local locations
+scriptLoc=$(readlink -f $(dirname $0) ) # location of this script
+jsonStore=$scriptLoc/temp_json          # location of json files
+logLoc=$scriptLoc/log_files             # location of error logs
+hrLogLoc=$scriptLoc/../media/human_readable_logs    # location of HR logs
+uhtrLoc=$scriptLoc/uhtr_results         # location of uhtr plots
 
+STATUS="\e[1;34m"   # color of status statements
+ACTION="\e[1;33m"   # color of action statements
+SUCCESS="\e[1;92m"  # color of success statements
+FAIL="\e[1;91m"     # color of failure statements
+DEF="\e[39;0m"      # default colors of text
+
+# remove old error logs
 rm -f $logLoc/*.log
-
-STATUS="\e[1;34m"
-ACTION="\e[1;33m"
-SUCCESS="\e[1;92m"
-FAIL="\e[1;91m"
-DEF="\e[39;0m"
 
 echo -e "${STATUS}Initial data set"
 echo ""
@@ -26,9 +39,11 @@ echo ""
 ###################################################
 echo -e "${STATUS}Uploading step 1 tests"
 
+# detemine if there are step1_raw.json files
 if ls $jsonStore/*step1_raw.json &> /dev/null
 then
-    fileList=$(ls $jsonStore/*step1_raw.json)
+    # upload each step1_raw.json file to the database
+    fileList=$(ls $jsonStore/*step1_raw.json)   # list of step1_raw.json
     for file in $fileList
     do
         echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
@@ -53,9 +68,11 @@ echo ""
 ###################################################
 echo -e "${STATUS}Uploading step 2 tests"
 
+# detemine if there are step2_raw.json files
 if ls $jsonStore/*step2_raw.json &> /dev/null
 then
-    fileList=$(ls $jsonStore/*step2_raw.json)
+    # upload each step2_raw.json file to the database
+    fileList=$(ls $jsonStore/*step2_raw.json)   # list of step2_raw.json
     for file in $fileList
     do
         echo -e "    ${ACTION}Processing${DEF} $(basename $file)"
