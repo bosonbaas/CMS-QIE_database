@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QieCard, Attempt, Tester, Test, Location
+from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule
 
 # This file describes the layout of the admin pages.
 
@@ -55,7 +55,43 @@ class TestAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('abbreviation', 'required') 
         return self.readonly_fields
 
+
+class ReadoutAdmin(admin.ModelAdmin):
+    """ Provides the layout for ReadoutModule editing """
+    
+    fieldsets = [
+        (None, {'fields': ['assembler', 'date', 'rm_number']}),
+        ("Card Pack", {'fields':['card_pack_number',
+                                 'card_1',
+                                 'card_2',
+                                 'card_3',
+                                 'card_4',
+                                 'mtp_optical_cable',
+                                 'sipm_control_card',
+                                ]}),
+        ("LV Assembly", {'fields':[]}),
+        ("Thermal Assembly", {'fields':[]}),
+        ("SiPM Assembly", {'fields':['sipm_array_1',
+                                     'sipm_array_2',
+                                     'sipm_array_3',
+                                     'sipm_array_4',
+                                     'sipm_array_5',
+                                     'mixed_sipm_array',
+                                     'odu_type',
+                                     'odu_number', 
+                                    ]}),
+        ("Jtag", {'fields':[]}),
+        ("RM Outer Shell", {'fields':['minsk']}),
+        ]
+    
+    list_display = ('rm_number',)
+    ordering = ('rm_number',)
+    searchfields = ('rm_number')
+
+
+
 # Registration of the models
 admin.site.register(QieCard, QieAdmin)
 admin.site.register(Tester)
 admin.site.register(Test, TestAdmin)
+admin.site.register(ReadoutModule, ReadoutAdmin)

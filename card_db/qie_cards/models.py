@@ -1,3 +1,4 @@
+# coding=utf-8
 from __future__ import unicode_literals
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -209,7 +210,35 @@ class Attempt(models.Model):
 
     def __str__(self):
         return str(self.test_type)
-        
+
+
+class ReadoutModule(models.Model):
+    
+    ODU_TYPE_OPTIONS = [
+                        ("1-3", "1-3"),
+                        ("2-4", "2-4"),
+                        ]
+    
+    assembler   = models.CharField('Assembler', max_length=50, default="")
+    date        = models.DateTimeField('Date Received', default=timezone.now)
+    rm_number   = models.IntegerField('RM №', default=-1)
+    card_pack_number    = models.IntegerField('CardPack №', default=-1)
+    card_1  = models.ForeignKey(QieCard, verbose_name='QIE card 1 №', related_name="rm_1", on_delete=models.PROTECT)
+    card_2  = models.ForeignKey(QieCard, verbose_name='QIE card 2 №', related_name="rm_2", on_delete=models.PROTECT)
+    card_3  = models.ForeignKey(QieCard, verbose_name='QIE card 3 №', related_name="rm_3", on_delete=models.PROTECT)
+    card_4  = models.ForeignKey(QieCard, verbose_name='QIE card 4 №', related_name="rm_4", on_delete=models.PROTECT)
+    mtp_optical_cable   = models.CharField('1 MTP to 8 LC optical cable №', max_length=50, default="")
+    sipm_control_card   = models.IntegerField('1 SiPM Control Card with BV mezzanine №', default=-1)
+    sipm_array_1    = models.IntegerField('SiPM Array S10943-4732 № (BV1-8)', default=-1)
+    sipm_array_2    = models.IntegerField('SiPM Array S10943-4732 № (BV17-24)', default=-1)
+    sipm_array_3    = models.IntegerField('SiPM Array S10943-4732 № (BV25-32)', default=-1)
+    sipm_array_4    = models.IntegerField('SiPM Array S10943-4732 № (BV33-40)', default=-1)
+    sipm_array_5    = models.IntegerField('SiPM Array S10943-4732 № (BV41-48)', default=-1)
+    mixed_sipm_array    = models.IntegerField('Mixed SiPM array S10943-4733 № (BV9-16)', default=-1)
+    odu_type    = models.CharField('ODU type', choices=ODU_TYPE_OPTIONS, max_length=3, default="")
+    odu_number  = models.IntegerField('ODU №', default=-1)
+    minsk       = models.IntegerField('White box with RM mechanics from Minsk №', default=-1)
+
 
 class Location(models.Model):
     """ This model stores information about a particular location where a card has been """
