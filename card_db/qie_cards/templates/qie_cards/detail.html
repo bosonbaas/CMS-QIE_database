@@ -1,5 +1,4 @@
 {% extends "qie_cards/base.html" %}
-{% load app_filters %}
 
 {% block title %}{{card.barcode}}{% endblock %}
 {% block head %}
@@ -29,20 +28,6 @@
     }
 
 </style>
-{% endblock %}
-
-{% block links %}
-<ul class="nav navbar-nav">
-    <li {% block catalog %}{% endblock %}><a href="../catalog">Catalog</a></li>
-    <li {% block summary %}{% endblock %}><a href="../summary">Summary</a></li>
-    <li {% block testers %}{% endblock %}><a href="../testers">Testers</a></li>
-    <li {% block test-details %}{% endblock %}><a href="../test-details">Test Details</a></li>
-    <li {% block stats %}{% endblock %}><a href="../stats">Stats</a></li>
-    <li {% block plots %}{% endblock %}><a href="../plots">Plots</a></li>
-</ul>
-<ul class="nav navbar-nav navbar-right">
-    <li><a href="../../admin">Admin</a></li>
-</ul>
 {% endblock %}
 
 {% block content %}
@@ -191,22 +176,4 @@ $(document).ready(function() {
 </script>
 
 
-{% endblock %}
-{% block script %}
-<script>
-function search(e){
-    cardID = document.getElementById("navbarInput").value;
-    if( cardID.length == 7){
-        e.preventDefault();
-        window.location= "../" + cardID;
-    } else {
-        appendage = "06";
-        while(appendage.length + cardID.length < 7){
-            appendage = appendage + "0";
-        }
-        e.preventDefault();
-        window.location= "../" + appendage + cardID;
-    }
-}
-</script>
 {% endblock %}

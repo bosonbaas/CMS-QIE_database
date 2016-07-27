@@ -26,24 +26,6 @@
 {% block body %}
 <body>
 {% endblock %}
-{% block script %}
-<script>
-function search(e){
-    cardID = document.getElementById("navbarInput").value;
-    if( cardID.length == 7){
-        e.preventDefault();
-        document.location.href = cardID;
-    } else {
-        appendage = "06";
-        while(appendage.length + cardID.length < 7){
-            appendage = appendage + "0";
-        }
-        e.preventDefault();
-        window.location.href = appendage + cardID;
-    }
-}
-</script>
-{% endblock %}
 
     <style>
       body {
@@ -58,20 +40,33 @@ function search(e){
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
                 </button>
-                <a class="navbar-brand" href="https://nbay11.fnal.gov/cards/catalog#">HCAL Upgrade</a>
+                <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="">HCAL Upgrade</a>
+                <span class="dropdown-arrow dropdown-arrow-inverse"></span>
+                <ul class="dropdown-menu" style="background-color: #2c3e50">
+                    <li style="background-color: #34495e"><a href="https://nbay11.fnal.gov/cards/catalog">QIE Cards</a></li>
+                    <li style="background-color: #34495e"><a href="https://nbay11.fnal.gov/rm/catalog">Readout Modules</a></li>
+                </ul>
             </div>
             <div class="navbar-collapse collapse">
             {% block links %}
                 <ul class="nav navbar-nav">
-                    <li {% block catalog %}{% endblock %}><a href="catalog">Catalog</a></li>
-                    <li {% block summary %}{% endblock %}><a href="summary">Summary</a></li>
-                    <li {% block testers %}{% endblock %}><a href="testers">Testers</a></li>
-                    <li {% block test-details %}{% endblock %}><a href="test-details">Test Details</a></li>
-                    <li {% block stats %}{% endblock %}><a href="stats">Stats</a></li>
-                    <li {% block plots %}{% endblock %}><a href="plots">Plots</a></li>
+                    <li {% block catalog %}{% endblock %}><a href="https://nbay11.fnal.gov/cards/catalog">Catalog</a></li>
+                    <li {% block summary %}{% endblock %}><a href="https://nbay11.fnal.gov/cards/summary">Summary</a></li>
+                    <li {% block testers %}{% endblock %}><a href="https://nbay11.fnal.gov/cards/testers">Testers</a></li>
+                    <li {% block test-details %}{% endblock %}><a href="https://nbay11.fnal.gov/cards/test-details">Test Details</a></li>
+                    <li>
+                        <a href= "" class="dropdown-toggle" data-toggle="dropdown">More<span class="caret"></span>
+                        </a>
+                        <span class="dropdown-arrow dropdown-arrow-inverse"></span>
+                        <ul class="dropdown-menu" style="background-color: #2c3e50">
+                            <li style="background-color: #34495e"><a href="https://nbay11.fnal.gov/cards/stats">Stats</a></li>
+                            <li style="background-color: #34495e"><a href="https://nbay11.fnal.gov/cards/plots">Plots</a></li>
+                            <li style="background-color: #34495e"><a href="https://nbay11.fnal.gov/cards/field">Field View</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="../admin">Admin</a></li>
+                    <li><a href="https://nbay11.fnal.gov/admin">Admin</a></li>
                 </ul>
                 {% endblock %}
                 <form class="navbar-form navbar-right" action="#" role="search">
@@ -103,5 +98,25 @@ function search(e){
 {% block content %}
 <h1>Default Content</h1>
 {% endblock %}
+
+{% block script %}
+<script>
+function search(e){
+    cardID = document.getElementById("navbarInput").value;
+    if( cardID.length > 3){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/cards/" + cardID.substring(cardID.length - 3);
+    } else {
+        appendage = ""
+        while(appendage.length + cardID.length < 3){
+            appendage = appendage + "0";
+        }
+        e.preventDefault();
+        window.location.href = "https://nbay11.fnal.gov/cards/" + appendage + cardID;
+    }
+}
+</script>
+{% endblock %}
+
 </body>
 </html>
