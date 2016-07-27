@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    url(r'^cards/', include('qie_cards.urls')),
+    url(r'^cards/', include('qie_cards.card_urls')),
+    url(r'^rm/', include('qie_cards.rm_urls')),
     url(r'^$', RedirectView.as_view(url='cards/catalog')),
     url(r'^admin/', admin.site.urls),
 ]

@@ -10,8 +10,9 @@ urlpatterns = [
     url(r'^testers$', views.TestersView.as_view(), name='testers'),
     url(r'^stats$', views.stats, name='stats'),
     url(r'^test-details$', views.TestDetailsView.as_view(), name='test-details'),
-    url(r'^(?P<card>[0-9]{7})/$', views.detail, name='detail'),
+    url(r'^(?P<card>[0-9]{3,7})/$', views.detail, name='detail'),
     url(r'^media/(?P<path>.*)$',serve, {'document_root':MEDIA_ROOT}),
     url(r'^plots$', views.PlotView.as_view(), name='plots'),
-    url(r'^(?P<card>[0-9]{7})/(?P<test>.*)$', views.testDetail, name='testDetail'),
+    url(r'^(?P<card>[0-9]{3,7})/(?P<test>.*)$', views.testDetail, name='testDetail'),
+    url(r'^field$', views.fieldView, name='fieldView'),
 ]
