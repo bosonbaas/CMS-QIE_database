@@ -65,10 +65,10 @@ def validate_uid(uid):
 class Test(models.Model):
     """ This model stores information about each type of test """
     
-    name = models.CharField(max_length=100, default="")
-    abbreviation = models.CharField(max_length=100, default="", unique=True)
-    description = models.TextField(max_length=1500, default="")
-    required = models.BooleanField(default=True)
+    name            = models.CharField(max_length=100, default="")
+    abbreviation    = models.CharField(max_length=100, default="", unique=True)
+    description     = models.TextField(max_length=1500, default="")
+    required        = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -77,8 +77,8 @@ class Test(models.Model):
 class Tester(models.Model):
     """ This model stores information about the testers of the cards """
 
-    username = models.CharField(max_length=100, default="", unique=True)
-    email = models.EmailField(max_length=255)    
+    username    = models.CharField(max_length=100, default="", unique=True)
+    email       = models.EmailField(max_length=255)    
 
     def __str__(self):
        return self.username
@@ -88,13 +88,13 @@ class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
     
     barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
-    uid = models.CharField(max_length=21, blank=True, default="")
-    bridge_major_ver = models.CharField(max_length=4, default="", blank=True)
-    bridge_minor_ver = models.CharField(max_length=4, default="", blank=True)
-    bridge_other_ver = models.CharField(max_length=8, default="", blank=True)
-    igloo_major_ver = models.CharField(max_length=4, default="", blank=True)
-    igloo_minor_ver = models.CharField(max_length=4, default="", blank=True)
-    comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    uid     = models.CharField(max_length=21, blank=True, default="")
+    bridge_major_ver    = models.CharField(max_length=4, default="", blank=True)
+    bridge_minor_ver    = models.CharField(max_length=4, default="", blank=True)
+    bridge_other_ver    = models.CharField(max_length=8, default="", blank=True)
+    igloo_major_ver     = models.CharField(max_length=4, default="", blank=True)
+    igloo_minor_ver     = models.CharField(max_length=4, default="", blank=True)
+    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_uid_flipped(self):
         familyName = self.uid[8:16]
@@ -134,39 +134,39 @@ class QieCard(models.Model):
 
         
 def images_location(upload, original_filename):
-    cardName = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
-    testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
-    attemptNum = str(upload.attempt_number) + "/"
+    cardName    = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
+    testAbbrev  = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
+    attemptNum  = str(upload.attempt_number) + "/"
     
     return os.path.join("images/", cardName, testAbbrev, attemptNum, original_filename)
     
 def logs_location(upload, original_filename):
-    cardName = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
-    testAbbrev = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
-    attemptNum = str(upload.attempt_number) + "/"
+    cardName    = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
+    testAbbrev  = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
+    attemptNum  = str(upload.attempt_number) + "/"
     
     return os.path.join("uploads/", "user_uploaded_logs/", cardName, testAbbrev, attemptNum, original_filename)
         
 class Attempt(models.Model):
     """ This model stores information about each testing attempt """
 
-    card = models.ForeignKey(QieCard, on_delete=models.CASCADE)     # The card this attempt was on
-    plane_loc = models.CharField(max_length=LOCATION_LENGTH, default="")
-    test_type = models.ForeignKey(Test, on_delete=models.PROTECT)   # The test this attempt was of
-    attempt_number = models.IntegerField(default=1)
-    tester = models.ForeignKey(Tester, on_delete=models.PROTECT)    # the person who enterd this attempt
+    card        = models.ForeignKey(QieCard, on_delete=models.CASCADE)      # The card this attempt was on
+    plane_loc   = models.CharField(max_length=LOCATION_LENGTH, default="")
+    test_type   = models.ForeignKey(Test, on_delete=models.PROTECT)         # The test this attempt was of
+    attempt_number  = models.IntegerField(default=1)
+    tester      = models.ForeignKey(Tester, on_delete=models.PROTECT)       # the person who enterd this attempt
     date_tested = models.DateTimeField('date tested')
-    num_passed = models.IntegerField(default=-1)
-    num_failed = models.IntegerField(default=-1)
-    revoked = models.BooleanField(default=False)
-    overwrite_pass = models.BooleanField(default=False)
+    num_passed  = models.IntegerField(default=-1)
+    num_failed  = models.IntegerField(default=-1)
+    revoked     = models.BooleanField(default=False)
+    overwrite_pass  = models.BooleanField(default=False)
     temperature = models.FloatField(default=-999.9)
-    humidity = models.FloatField(default=-999.9)
-    comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    image = models.ImageField(upload_to=images_location, default="default.png")
+    humidity    = models.FloatField(default=-999.9)
+    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    image       = models.ImageField(upload_to=images_location, default="default.png")
     
-    log_file = models.FileField(upload_to=logs_location, default='default.png')
-    log_comments = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    log_file        = models.FileField(upload_to=logs_location, default='default.png')
+    log_comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     
     hidden_log_file = models.FileField(upload_to=logs_location, default='default.png')
     
@@ -250,6 +250,43 @@ class Location(models.Model):
 # An appendage to the save function
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
+
+
+class QieShuntParams(models.Model):
+    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
+    serial  = models.IntegerField(default=-1)
+    qie     = models.IntegerField(default=-1)
+    cap_ID  = models.IntegerField(default=-1)
+    cal_range   = models.IntegerField(default=-1)
+    shunt   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    slope   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    offset  = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    date    = models.DateTimeField('date received', default=timezone.now)
+    plots   = models.ImageField(upload_to=images_location, default="default.png")
+    results_file    = models.FileField(upload_to=logs_location, default='default.png')
+    
+
+class QieParams(models.Model):
+    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
+    serial  = models.IntegerField(default=-1)
+    qie     = models.IntegerField(default=-1)
+    cap_ID  = models.IntegerField(default=-1)
+    cal_range   = models.IntegerField(default=-1)
+    shunt   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    slope   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    offset  = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    date    = models.DateTimeField('date received', default=timezone.now)
+    plots   = models.ImageField(upload_to=images_location, default="default.png")
+    results_file    = models.FileField(upload_to=logs_location, default='default.png')
+
+
+class QieTdcParams(models.Model):
+    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
+    qie     = models.IntegerField(default=-1)
+    tdc_start   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
+    plots   = models.ImageField(upload_to=images_location, default="default.png")
+    results_file    = models.FileField(upload_to=logs_location, default='default.png')
+
 
 @receiver(pre_save)
 def pre_save_handler(sender, instance, *args, **kwargs):

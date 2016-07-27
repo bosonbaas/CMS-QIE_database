@@ -26,9 +26,15 @@ class CatalogView(generic.ListView):
 
 def summary(request):
     """ This displays a summary of the cards """
+    print "Loading Cards"
     cards = list(QieCard.objects.all().order_by('barcode'))
+    print "Loaded Cards"
+    print "Loading Tests"
     tests = list(Test.objects.all())
+    print "Loaded Tests"
+    print "Loading Attempts"
     attempts = list(Attempt.objects.all())
+    print "Loaded Attempts"
     print "Getting States!"
     cardStat = filters.getCardTestStates(cards, tests, attempts)
     print "Got 'em!"
@@ -81,7 +87,7 @@ def stats(request):
 def detail(request, card):
     """ This displays details about tests on a card """
     try:
-        p = QieCard.objects.get(barcode=card)
+        p = QieCard.objects.get(barcode__endswith=card)
     except QieCard.DoesNotExist:
         raise Http404("QIE card with barcode " + str(card) + " does not exist")
 
@@ -154,7 +160,7 @@ class PlotView(generic.ListView):
 
 def testDetail(request, card, test):
     try:
-        qieCard = QieCard.objects.get(barcode=card)
+        qieCard = QieCard.objects.get(barcode__endswith=card)
     except QieCard.DoesNotExist:
         raise Http404("QIE card does not exist")
     try:
@@ -184,7 +190,8 @@ def testDetail(request, card, test):
             elif attempt.test_type.abbreviation == "overall shunt scan":
                 data = tempDict["TestOutputs"]["shuntResults"]
             elif "ResultStrings" in tempDict:
-                data = tempDict["ResultStrings"][attempt.test_type.abbreviation]
+                if attempt.test_type.abbreviation in tempDict["ResultStrings"]:
+                    data = tempDict["ResultStrings"][attempt.test_type.abbreviation]
         attemptData.append((attempt, data))
 
     firstTest = []
@@ -193,3 +200,40 @@ def testDetail(request, card, test):
                                                          'test': curTest,
                                                          'attempts': attemptData
                                                          })
+
+
+def fieldView(request):
+    """ This displays details about tests on a card """ 
+    options = ["barcode",
+               "uid",
+               "bridge_major_ver",
+               "bridge_minor_ver",
+               "bridge_other_ver",
+               "igloo_minor_ver",
+               "comments",
+               "last location"]
+    
+    fields = []
+    for i in range(5):
+        if(request.POST.get('field' + str(i+1))):
+            field = request.POST.get('field' + str(i+1))
+            if field in options:
+                fields.append(field)
+
+
+    cards = list(QieCard.objects.all())
+    items = []
+    
+    for card in cards:
+        item = {}
+        item["id"] = card.pk
+        item["fields"] = []
+        for field in fields:
+            if field == "last location":
+                item["fields"].append(card.location_set.all().order_by("date_received").reverse()[0].geo_loc)
+            else:
+                item["fields"].append(getattr(card, field))
+
+        items.append(item)
+
+    return render(request, 'qie_cards/fieldView.html', {'fields': fields, "items": items, "options": options})
