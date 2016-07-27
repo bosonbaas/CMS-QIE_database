@@ -1,15 +1,15 @@
-{% extends "qie_cards/base.html" %}
+{% extends "readout_modules/base.html" %}
 {% block head %}
     <link href="/static/qie_cards/css/catalog.css" rel="stylesheet">
 {% endblock %}
 
-{% block title %}HE QIE Card Test Database{% endblock %}
+{% block title %}HE Readout Module Database{% endblock %}
 
 {% block catalog %}class="active"{% endblock %}
 
 {% block content %}
 <div class="row" align="left" style="padding-left:50px;">
-	<h3>Card Catalog</h3><br>
+	<h3>Readout Module Catalog</h3><br>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div>
 <br><br>
@@ -17,11 +17,11 @@
 <div class="row" style="padding-left:50px;padding-right:50px">
     <div class="splitColumns">
       <ul>
-{% if barcode_list %}
+{% if rm_list %}
 <div class="row">
 	<div align="center"><ul>
-	{% for card in barcode_list %}
-  		<li style="font-size:18px"><a href="{{card.barcode}}/">{{card.barcode}}</a></li>
+	{% for module in rm_list %}
+  		<li style="font-size:18px">{{module.rm_number}}</li>
 	{%endfor%}
 	</ul></div>
 </div>
