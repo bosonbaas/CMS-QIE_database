@@ -67,7 +67,7 @@ barcode = cardData["Barcode"]
 uid = cardData["Unique_ID"]
 
 try:
-    qie = QieCard.objects.get(uid=uid)
+    qie = QieCard.objects.get(uid=getUID(uid))
 except:
     try:    
         qie = QieCard.objects.get(barcode=barcode)
