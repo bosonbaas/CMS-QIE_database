@@ -65,6 +65,6 @@ for attempt in attempts:
             testStates[str(attempt.test_type_id)][attempt.card_id]["state"] = REMAIN
 
 # Dump the json into the proper location
-with open("/home/django/testing_database/media/plots/plots.json", 'w') as f:
+with open("/home/django/testing_database/media/cached_data/plots.json", 'w') as f:
     json.dump(testStates, f)
 f.close()
