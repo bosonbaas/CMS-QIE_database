@@ -1,0 +1,57 @@
+{% extends "readout_modules/base.html" %}
+
+{% block title %}{{rm.rm_number}}{% endblock %}
+
+{% block content %}
+
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>RM Overview</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+</div><br>
+
+<div class="row" align="left">
+    <div class="col-md-5" style="padding-left:50px;">
+        <h4>Assembler:</h4>
+        <h4>Date Assembled:</h4>
+        <h4>RM №:</h4>
+        <h4>CardPack №:</h4>
+        <h4>QIE card 1 №:</h4>
+        <h4>QIE card 2 №:</h4>
+        <h4>QIE card 3 №:</h4>
+        <h4>QIE card 4 №:</h4>
+        <h4>optical cable №:</h4>
+        <h4>SiPM Control Card №:</h4>
+        <h4>SiPM Array (BV1-8) №:</h4>
+        <h4>SiPM Array (BV17-24) №:</h4>
+        <h4>SiPM Array (BV25-32) №:</h4>
+        <h4>SiPM Array (BV33-40) №:</h4>
+        <h4>SiPM Array (BV41-48) №:</h4>
+        <h4>Mixed SiPM array №:</h4>
+        <h4>ODU type:</h4>
+        <h4>ODU №:</h4>
+        <h4>White Box №:</h4>
+    </div>
+    <div class="col-md-4">
+        <h4>{{rm.assembler}}</h4>
+        <h4>{{rm.date}}</h4>
+        <h4>{{rm.rm_number}}</h4>
+        <h4>{{rm.card_pack_number}}</h4>
+        <h4>{{rm.card_1}}</h4>
+        <h4>{{rm.card_2}}</h4>
+        <h4>{{rm.card_3}}</h4>
+        <h4>{{rm.card_4}}</h4>
+        <h4>{{rm.mtp_optical_cable}}</h4>
+        <h4>{{rm.sipm_control_card}}</h4>
+        <h4>{{rm.sipm_array_1}}</h4>
+        <h4>{{rm.sipm_array_2}}</h4>
+        <h4>{{rm.sipm_array_3}}</h4>
+        <h4>{{rm.sipm_array_4}}</h4>
+        <h4>{{rm.sipm_array_5}}</h4>
+        <h4>{{rm.mixed_sipm_array}}</h4>
+        <h4>{{rm.odu_type}}</h4>
+        <h4>{{rm.odu_number}}</h4>
+        <h4>{{rm.minsk}}</h4>
+    </div>
+</div><br>
+
+{% endblock %}

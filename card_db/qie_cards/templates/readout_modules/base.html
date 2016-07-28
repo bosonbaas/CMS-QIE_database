@@ -50,7 +50,7 @@
             <div class="navbar-collapse collapse">
             {% block links %}
                 <ul class="nav navbar-nav">
-                    <li {% block catalog %}{% endblock %}><a href="https://nbay11.fnal.gov/cards/catalog">Catalog</a></li> 
+                    <li {% block catalog %}{% endblock %}><a href="https://nbay11.fnal.gov/rm/catalog">Catalog</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="https://nbay11.fnal.gov/admin">Admin</a></li>
@@ -76,22 +76,7 @@
 {% endblock %}
 
 {% block script %}
-<script>
-function search(e){
-    cardID = document.getElementById("navbarInput").value;
-    if( cardID.length > 3){
-        e.preventDefault();
-        document.location.href = "https://nbay11.fnal.gov/cards/" + cardID.substring(cardID.length - 3);
-    } else {
-        appendage = ""
-        while(appendage.length + cardID.length < 3){
-            appendage = appendage + "0";
-        }
-        e.preventDefault();
-        window.location.href = "https://nbay11.fnal.gov/cards/" + appendage + cardID;
-    }
-}
-</script>
+
 {% endblock %}
 
 </body>

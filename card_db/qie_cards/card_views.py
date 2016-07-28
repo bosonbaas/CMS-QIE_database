@@ -12,7 +12,7 @@ import custom.filters as filters
 
 from django.utils import timezone
 from django.http import HttpResponse, Http404
-from card_db.settings import MEDIA_ROOT 
+from card_db.settings import MEDIA_ROOT, CACHE_DATA 
 
 
 class CatalogView(generic.ListView):
@@ -26,18 +26,27 @@ class CatalogView(generic.ListView):
 
 def summary(request):
     """ This displays a summary of the cards """
-    print "Loading Cards"
-    cards = list(QieCard.objects.all().order_by('barcode'))
-    print "Loaded Cards"
-    print "Loading Tests"
-    tests = list(Test.objects.all())
-    print "Loaded Tests"
-    print "Loading Attempts"
-    attempts = list(Attempt.objects.all())
-    print "Loaded Attempts"
-    print "Getting States!"
-    cardStat = filters.getCardTestStates(cards, tests, attempts)
-    print "Got 'em!"
+    if CACHE_DATA:
+        cache = path.join(MEDIA_ROOT, "cached_data/summary.json")
+        print "opening JSON"
+        infile = open(cache, "r")
+        print "opened JSON"
+        print "Loading JSON"
+        cardStat = json.load(infile)
+        print "JSON Loaded"
+    else:
+        print "Loading Cards"
+        cards = list(QieCard.objects.all().order_by('barcode'))
+        print "Loaded Cards"
+        print "Loading Tests"
+        tests = list(Test.objects.all())
+        print "Loaded Tests"
+        print "Loading Attempts"
+        attempts = list(Attempt.objects.all())
+        print "Loaded Attempts"
+        print "Getting States!"
+        cardStat = filters.getCardTestStates(cards, tests, attempts)
+        print "Got 'em!"
     
     return render(request, 'qie_cards/summary.html', {'cards': cardStat})
 
@@ -63,26 +72,28 @@ def stats(request):
     """ This displays a summary of the cards """
    
     # Get required attempts and tests
-    attempts = []
-    tests = list(Test.objects.filter(required=True))
-    testSet = Set()
-    for test in tests:
-        testSet.add(test.pk)
+    if CACHE_DATA:
+        cache = path.join(MEDIA_ROOT, "cached_data/stats.json")
+        infile = open(cache, "r")
+        statistics = json.load(infile)
+    else:
+        attempts = []
+        tests = list(Test.objects.filter(required=True))
         
-    for attempt in Attempt.objects.all():
-        if attempt.test_type_id in testSet:
-            attempts.append(attempt)
-            
-    cards = list(QieCard.objects.all().order_by("barcode"))
+        for test in tests:
+            attempts.extend(list(test.attempt_set.all())) 
+                
+        cards = list(QieCard.objects.all().order_by("barcode"))
 
-    testFailedStats = filters.getFailedCardStats(cards, tests, attempts)
-    testPassedStats = filters.getPassedCardStats(cards, tests, attempts)
-    testRemStats = filters.getRemCardStates(cards, tests, attempts)
+        testFailedStats = filters.getFailedCardStats(cards, tests, attempts)
+        testPassedStats = filters.getPassedCardStats(cards, tests, attempts)
+        testRemStats = filters.getRemCardStates(cards, tests, attempts)
+        statistics = {'passed': testPassedStats,
+                      'failed': testFailedStats,
+                      'remaining': testRemStats,
+                     }
 
-    return render(request, 'qie_cards/stats.html', {'passed': testPassedStats,
-                                                    'failed': testFailedStats,
-                                                    'remaining': testRemStats,
-                                                    })
+    return render(request, 'qie_cards/stats.html', statistics)
  
 def detail(request, card):
     """ This displays details about tests on a card """
@@ -209,6 +220,7 @@ def fieldView(request):
                "bridge_major_ver",
                "bridge_minor_ver",
                "bridge_other_ver",
+               "igloo_major_ver",
                "igloo_minor_ver",
                "comments",
                "last location"]

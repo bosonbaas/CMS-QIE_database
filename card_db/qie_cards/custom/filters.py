@@ -1,5 +1,23 @@
 from ..models import QieCard, Tester, Test, Attempt, Location
 
+def attemptTotalState(attempts):
+    status = "default"
+    forced = False
+    for attempt in attempts:
+        if attempt.revoked:
+            if status == "default":
+                status = "incomplete"
+        else:
+            if not status == "failed":
+                if attempt.overwrite_pass:
+                    forced = True
+                    status = "passed"
+                elif attempt.passed_all():
+                    status = "passed"
+                else:
+                    status = "failed"
+    return (status, forced)
+
 
 def getPassedDates(cards, tests, attempts):
     cardStates = getCardTestStatesDates(cards, tests, attempts)
@@ -130,16 +148,22 @@ def getCardTestStates(cards, tests, attempts):
     state = {}
 
     for card in cards:
-        state[card.pk] = [0] * numTests
+        state[card.pk] = {}
+        state[card.pk]["states"] = [0] * numTests
+        state[card.pk]["forced"] = False
     
     for attempt in attempts:
-        if not attempt.revoked:
-            testInd = testsToInd[attempt.test_type_id];
+        testInd = testsToInd[attempt.test_type_id]
+        if not attempt.revoked and not state[attempt.card_id]["states"][testInd] == 2:
 
-            if not attempt.num_failed == 0 and not attempt.overwrite_pass:
-                state[attempt.card_id][testInd] = 2
-            elif (not attempt.num_passed == 0 or attempt.overwrite_pass) and state[attempt.card_id][testInd] == 0:
-                state[attempt.card_id][testInd] = 1
+            if attempt.overwrite_pass:
+                state[attempt.card_id]["states"][testInd] = 1
+                if tests[testInd].required:
+                    state[attempt.card_id]["forced"] = True
+            elif not attempt.num_failed == 0:
+                state[attempt.card_id]["states"][testInd] = 2
+            elif not attempt.num_passed == 0:
+                state[attempt.card_id]["states"][testInd] = 1
 
     cardStat = []
 
@@ -149,20 +173,27 @@ def getCardTestStates(cards, tests, attempts):
         curPass = []
         curRem = []
         tempDict = {}
-        curState = state[card.pk]
+        tempDict["num_passed"] = 0                # number of passed required tests
+        tempDict["num_failed"] = 0                # number of failed required tests
+        curState = state[card.pk]["states"]
 
-        for i in xrange(numTests):
-            if curState[i] == 0:
-                curRem.append(tests[i].name)
-            elif curState[i] == 1:
-                curPass.append(tests[i].name)
-            elif curState[i] == 2:
-                curFail.append(tests[i].name)
+        for j in xrange(numTests):
+            if curState[j] == 0:
+                curRem.append(tests[j].name)
+            elif curState[j] == 1:
+                curPass.append(tests[j].name)
+                if tests[j].required:
+                    tempDict["num_passed"] += 1
+            elif curState[j] == 2:
+                curFail.append(tests[j].name)
+                if tests[j].required:
+                    tempDict["num_failed"] += 1
         
         tempDict['barcode'] = card.barcode
         tempDict['failed'] = curFail
         tempDict['passed'] = curPass
         tempDict['remaining'] = curRem
+        tempDict['forced'] = state[card.pk]["forced"]
         cardStat.append(tempDict)
     return cardStat
 
