@@ -41,7 +41,7 @@
 <form action="" method="post">
   {% csrf_token %}
   <div class="row">
-  {# Yay for hacky solutions! (No built in Django range function...) #}
+  {# Yay for hacky solutions! (No built in Django range function...) I like that sneaky solution. :) #}
   {% for i in "123" %}
     <div style="float:left;width:15%">
       <label for="sel{{i}}">Row {{i}} field:</label>

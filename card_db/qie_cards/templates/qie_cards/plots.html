@@ -30,8 +30,26 @@
     <button onclick="updateData()" class="btn btn-primary btn-block btn-large">Refresh Plot</button>
 </div>
 
-<div id="plot">
+<div id="plot"></div>
+<div id="data">
+    <table class="table table-bordered table-responsive" align="center" style="width: 95%; font-size: 12px">
+		<thead>
+			<tr>
+				<th colspan="1" style="background-color: #7F8C8D; text-align: center; font-size: 16px;"> Cards Incomplete </th>
+				<th colspan="1" style="background-color: #2ECC71; text-align: center; font-size: 16px;"> Cards Passed </th>
+				<th colspan="1" style="background-color: #E74C3C; text-align: center; font-size: 16px;"> Cards Failed </th>
+			</tr>
+		</thead>
+		<tbody>
+            <tr>
+                <td id="remCol" ><ul></ul></td>
+                <td id="passedCol" ><ul></ul></td>
+                <td id="failedCol" ><ul></ul></td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+
 
 <script>
 function updateData(){

@@ -20,6 +20,7 @@
 				<tr>
 					<th> Name </th>
 					<th> Email </th>
+                    <th> Affiliation </th>
 				</tr>
 			</thead>
 			<tbody>
@@ -28,6 +29,7 @@
 				<tr>
 					<td align="left"> {{tester.username}} </td>
 					<td align="left"><a href="mailto:{{tester.email}}"> {{tester.email}} </a></td>
+					<td align="left"> {{tester.affiliation}} </td>
 				</tr>
 				{% endfor %}
 			</tbody>
