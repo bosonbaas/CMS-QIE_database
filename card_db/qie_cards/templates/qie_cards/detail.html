@@ -32,7 +32,7 @@
 
 {% block content %}
 
-<div class="row" align="left" style="padding-left:50px;">
+<!-- <div class="row" align="left" style="padding-left:50px;">
     <h3>Card Overview</h3>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
@@ -58,16 +58,48 @@
         <h4>{{status.passed}}/{{status.total}} tests passing</h4>
         <a href="calibration" class="btn btn-primary">To Calibration Data</a>
     </div>
+</div><br> -->
+
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>Card Overview</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
+
+<div class="row" align="left">
+    <div class="col-md-2" style="padding-left:50px;">
+        <h4>Barcode:</h4>
+        <h4>Unique ID:</h4>
+        <h4>Bridge FW:</h4>
+        <h4>Igloo FW:</h4>
+    </div>
+    <div class="col-md-3">
+        <h4>{{card.barcode}}</h4>
+        <h4>{{card.get_uid_mac}}</h4>
+        <h4>{{card.get_bridge_ver_hex}}</h4>
+        <h4>{{card.get_igloo_ver_hex}}</h4>
+    </div>
+    <div class="col-md-3">
+        <h4>---</h4>
+        <h4>{{card.get_uid_flipped}}</h4>
+        <h4>{{card.get_bridge_ver}}</h4>
+        <h4>{{card.get_igloo_ver}}</h4>
+    </div>
+    <div class="col-md-3 {{status.css}}">
+        <h4>Status:</h4>
+        <h4>{{status.banner}}</h4>
+        <h4>{{status.passed}}/{{status.total}} tests passing</h4>
+    </div>
+</div><br>
+
 <div class="row" align="left" style="padding-left:50px;width: 100%">
     <h3>Comments:</h3>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C;"></div>
     <p style="width:100%; white-space: pre-wrap;">{{card.comments | default:"No comment given"}}</p>
 
 </div>
-<div class="row" align="left" style="padding-left:100px;width:50%"> 
+<div class="row" align="left" style="padding-left:100px;width:50%">
     <form action="" method="post">
-        {% csrf_token %} 
+        {% csrf_token %}
         <h4>Add a Comment</h4>
         <textarea name="comment" rows="4" cols="20" class="form-control" placeholder="Comment..."></textarea>
         <input type="submit" class="btn btn-primary" value="Submit" name="comment_add">
@@ -97,9 +129,9 @@
   </tbody>
 </table>
 
-<div class="row" align="left" style="padding-left:100px;width:50%"> 
+<div class="row" align="left" style="padding-left:100px;width:50%">
     <form action="" method="post">
-        {% csrf_token %} 
+        {% csrf_token %}
         <h4>Add a Location</h4>
         <input name="location" type="text" class="form-control" placeholder="Location...">
         <input type="submit" class="btn btn-primary" value="Submit" name="location_add">
@@ -141,7 +173,7 @@
       <td>{{item.attempt.date_tested}}</td>
       <td>{{item.attempt.num_passed}}/{{item.attempt.num_failed}}</td>
       <td><a href="{{item.attempt.test_type}}">[link to history]</a></td>
-    </tr> 
+    </tr>
     {% else %}
     <tr>
       <th scope="row">{{item.attempt}}</th>
