@@ -18,7 +18,7 @@ MAX_COMMENT_LENGTH = 1000        # Constant for max comment length
 
 def validate_card_id(value):
     """ This determines whether an input card ID is valid """
-    
+
     # ID must be a string of digits
     if not value.isdigit():
         raise ValidationError('ID must only contain numbers')
@@ -29,34 +29,34 @@ def validate_card_id(value):
 
     curId = value[(len(value) - 3):]
     sameId = QieCard.objects.filter(barcode__iendswith=curId).exclude(barcode__exact=value)
-    
+
     # Last 3 digits of ID must be unique
     if sameId:
         raise ValidationError(
             ('Card "%(value)s" is already recorded'),
             params={'value':curId},
         )
-        
+
 
 def validate_uid(uid):
     """ This determines whether a card UID is valid """
-    
+
     parsed = uid.split(":")
-    
+
     if uid == "":
         return ""
-    
+
     #UID must have 6 sections
     if not len(parsed) == 6:
         raise ValidationError("UID must have six ':'-separated sections")
-        
+
     for part in parsed:
-    
+
         # All UID sections must have 2 characters
         if not len(part) == 2:
             raise ValidationError("Each section must contain two characters")
         for letter in part:
-            
+
             # All characters in the UID must be valid hexadecimal digits
             if not letter.isdigit() and not (letter.lower() >= 'a' and letter.lower() <= 'f'):
                 raise ValidationError("UID may only contain hexadecimal digits")
@@ -64,7 +64,7 @@ def validate_uid(uid):
 
 class Test(models.Model):
     """ This model stores information about each type of test """
-    
+
     name            = models.CharField(max_length=100, default="")
     abbreviation    = models.CharField(max_length=100, default="", unique=True)
     description     = models.TextField(max_length=1500, default="")
@@ -78,7 +78,7 @@ class Tester(models.Model):
     """ This model stores information about the testers of the cards """
 
     username    = models.CharField(max_length=100, default="", unique=True)
-    email       = models.EmailField(max_length=255)    
+    email       = models.EmailField(max_length=255)
 
     def __str__(self):
        return self.username
@@ -86,7 +86,7 @@ class Tester(models.Model):
 
 class QieCard(models.Model):
     """ This model stores information about the different QIE cards """
-    
+
     barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
     uid     = models.CharField(max_length=21, blank=True, default="")
     bridge_major_ver    = models.CharField(max_length=4, default="", blank=True)
@@ -96,11 +96,16 @@ class QieCard(models.Model):
     igloo_minor_ver     = models.CharField(max_length=4, default="", blank=True)
     comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
+    def get_uid_split(self):
+        checkSum = self.uid[0:8]
+        familyName = self.uid[8:16]
+        return "0x" + checkSum + " 0x" + familyName
+
     def get_uid_flipped(self):
         familyName = self.uid[8:16]
         checkSum = self.uid[0:8]
         return "0x" + familyName + " 0x" + checkSum
-    
+
     def get_uid_mac(self):
         """ Parses the raw UID into a mac-address format """
         raw = self.uid[2:]
@@ -116,37 +121,52 @@ class QieCard(models.Model):
 
     def get_bridge_ver(self):
         if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
-            return "Not Uploaded" 
+            return "Not Uploaded"
         major = str(int(self.bridge_major_ver, 16))
         minor = str(int(self.bridge_minor_ver, 16))
         other = str(int(self.bridge_other_ver, 16))
         return major + "." + minor + "." + other
-  
+
+    def get_bridge_ver_hex(self):
+        if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
+            return "Not Uploaded"
+        major = self.bridge_major_ver.zfill(2)
+        minor = self.bridge_minor_ver.zfill(2)
+        other = self.bridge_other_ver.zfill(4)
+        return major + "." + minor + "." + other
+
     def get_igloo_ver(self):
         if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
-            return "Not Uploaded" 
+            return "Not Uploaded"
         major = str(int(self.igloo_major_ver, 16))
         minor = str(int(self.igloo_minor_ver, 16))
-        return major + "." + minor 
+        return major + "." + minor
+
+    def get_igloo_ver_hex(self):
+        if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
+            return "Not Uploaded"
+        major = self.igloo_major_ver.zfill(2)
+        minor = self.igloo_minor_ver.zfill(2)
+        return major + "." + minor
 
     def __str__(self):
        return str(self.barcode)
 
-        
+
 def images_location(upload, original_filename):
     cardName    = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
     testAbbrev  = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
     attemptNum  = str(upload.attempt_number) + "/"
-    
+
     return os.path.join("images/", cardName, testAbbrev, attemptNum, original_filename)
-    
+
 def logs_location(upload, original_filename):
     cardName    = str(QieCard.objects.get(pk=upload.barcode).barcode) + "/"
     testAbbrev  = str(Test.objects.get(pk=upload.test_type_id).abbreviation) + "/"
     attemptNum  = str(upload.attempt_number) + "/"
-    
+
     return os.path.join("uploads/", "user_uploaded_logs/", cardName, testAbbrev, attemptNum, original_filename)
-        
+
 class Attempt(models.Model):
     """ This model stores information about each testing attempt """
 
@@ -164,19 +184,19 @@ class Attempt(models.Model):
     humidity    = models.FloatField(default=-999.9)
     comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
     image       = models.ImageField(upload_to=images_location, default="default.png")
-    
+
     log_file        = models.FileField(upload_to=logs_location, default='default.png')
     log_comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    
+
     hidden_log_file = models.FileField(upload_to=logs_location, default='default.png')
-    
+
     def passed_all(self):
         return (self.num_failed == 0)
 
     def has_image(self):
         """ This returns whether the attempt has a specified image """
         return (not self.image == "default.png")
-        
+
     def has_log(self):
         """ This returns whether the attempt has a log folder """
         return (not self.log_file == "default.png")
@@ -213,12 +233,12 @@ class Attempt(models.Model):
 
 
 class ReadoutModule(models.Model):
-    
+
     ODU_TYPE_OPTIONS = [
                         ("1-3", "1-3"),
                         ("2-4", "2-4"),
                         ]
-    
+
     assembler   = models.CharField('Assembler', max_length=50, default="")
     date        = models.DateTimeField('Date Received', default=timezone.now)
     rm_number   = models.IntegerField('RM №', default=-1)
@@ -242,7 +262,7 @@ class ReadoutModule(models.Model):
 
 class Location(models.Model):
     """ This model stores information about a particular location where a card has been """
-    
+
     card = models.ForeignKey(QieCard, on_delete=models.CASCADE)
     date_received = models.DateTimeField('date received', default=timezone.now)
     geo_loc = models.CharField('Location',max_length=200, default="")
@@ -264,7 +284,7 @@ class QieShuntParams(models.Model):
     date    = models.DateTimeField('date received', default=timezone.now)
     plots   = models.ImageField(upload_to=images_location, default="default.png")
     results_file    = models.FileField(upload_to=logs_location, default='default.png')
-    
+
 
 class QieParams(models.Model):
     card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
