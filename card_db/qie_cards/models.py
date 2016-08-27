@@ -78,7 +78,8 @@ class Tester(models.Model):
     """ This model stores information about the testers of the cards """
 
     username    = models.CharField(max_length=100, default="", unique=True)
-    email       = models.EmailField(max_length=255)    
+    email       = models.EmailField(max_length=255)
+    affiliation = models.CharField('Affiliation', max_length=200, default="") 
 
     def __str__(self):
        return self.username
@@ -215,9 +216,15 @@ class Attempt(models.Model):
 class ReadoutModule(models.Model):
     
     ODU_TYPE_OPTIONS = [
-                        ("1-3", "1-3"),
-                        ("2-4", "2-4"),
-                        ]
+                        ("1", "1"),
+                        ("2", "2"),
+                        ("3", "3"),
+                        ("4", "4"),
+                       ]
+    MOUNTING_OPTIONS = [
+                        ("1/3", "1/3"),
+                        ("2/4", "2/4"),
+                       ]
     
     assembler   = models.CharField('Assembler', max_length=50, default="")
     date        = models.DateTimeField('Date Received', default=timezone.now)
@@ -229,15 +236,98 @@ class ReadoutModule(models.Model):
     card_4  = models.ForeignKey(QieCard, verbose_name='QIE card 4 №', related_name="rm_4", on_delete=models.PROTECT)
     mtp_optical_cable   = models.CharField('1 MTP to 8 LC optical cable №', max_length=50, default="")
     sipm_control_card   = models.IntegerField('1 SiPM Control Card with BV mezzanine №', default=-1)
+    
+    lv_assembly = models.IntegerField('LV Assembly Number', default=-1)
+
+    therm_assembly  = models.IntegerField('Thermal Assembly Number', default=-1)
+
     sipm_array_1    = models.IntegerField('SiPM Array S10943-4732 № (BV1-8)', default=-1)
     sipm_array_2    = models.IntegerField('SiPM Array S10943-4732 № (BV17-24)', default=-1)
     sipm_array_3    = models.IntegerField('SiPM Array S10943-4732 № (BV25-32)', default=-1)
     sipm_array_4    = models.IntegerField('SiPM Array S10943-4732 № (BV33-40)', default=-1)
     sipm_array_5    = models.IntegerField('SiPM Array S10943-4732 № (BV41-48)', default=-1)
     mixed_sipm_array    = models.IntegerField('Mixed SiPM array S10943-4733 № (BV9-16)', default=-1)
+    sipm_mounting   = models.CharField('SiPM Mounting Board Type', choices=MOUNTING_OPTIONS, max_length=3, default="")
     odu_type    = models.CharField('ODU type', choices=ODU_TYPE_OPTIONS, max_length=3, default="")
     odu_number  = models.IntegerField('ODU №', default=-1)
+    
     minsk       = models.IntegerField('White box with RM mechanics from Minsk №', default=-1)
+    
+    dcdc_output = models.CharField('Output of 5V DC-DC', max_length=50, default="")
+    upload      = models.FileField('Image Upload', upload_to='readout_module/', default='default.png')
+
+
+    def __str__(self):
+        return str(self.rm_number)
+
+class RMBiasVoltage(models.Model):
+    readout_module = models.ForeignKey(ReadoutModule, on_delete=models.CASCADE, default=1)
+    channel_01 = models.CharField(max_length=50)
+    channel_02 = models.CharField(max_length=50)
+    channel_03 = models.CharField(max_length=50)
+    channel_04 = models.CharField(max_length=50)
+    channel_05 = models.CharField(max_length=50)
+    channel_06 = models.CharField(max_length=50)
+    channel_07 = models.CharField(max_length=50)
+    channel_08 = models.CharField(max_length=50)
+    channel_09 = models.CharField(max_length=50)
+    channel_10 = models.CharField(max_length=50)
+    channel_11 = models.CharField(max_length=50)
+    channel_12 = models.CharField(max_length=50)
+    channel_13 = models.CharField(max_length=50)
+    channel_14 = models.CharField(max_length=50)
+    channel_15 = models.CharField(max_length=50)
+    channel_16 = models.CharField(max_length=50)
+    channel_17 = models.CharField(max_length=50)
+    channel_18 = models.CharField(max_length=50)
+    channel_19 = models.CharField(max_length=50)
+    channel_20 = models.CharField(max_length=50)
+    channel_21 = models.CharField(max_length=50)
+    channel_22 = models.CharField(max_length=50)
+    channel_23 = models.CharField(max_length=50)
+    channel_24 = models.CharField(max_length=50)
+    channel_25 = models.CharField(max_length=50)
+    channel_26 = models.CharField(max_length=50)
+    channel_27 = models.CharField(max_length=50)
+    channel_28 = models.CharField(max_length=50)
+    channel_29 = models.CharField(max_length=50)
+    channel_30 = models.CharField(max_length=50)
+    channel_31 = models.CharField(max_length=50)
+    channel_32 = models.CharField(max_length=50)
+    channel_33 = models.CharField(max_length=50)
+    channel_34 = models.CharField(max_length=50)
+    channel_35 = models.CharField(max_length=50)
+    channel_36 = models.CharField(max_length=50)
+    channel_37 = models.CharField(max_length=50)
+    channel_38 = models.CharField(max_length=50)
+    channel_39 = models.CharField(max_length=50)
+    channel_40 = models.CharField(max_length=50)
+    channel_41 = models.CharField(max_length=50)
+    channel_42 = models.CharField(max_length=50)
+    channel_43 = models.CharField(max_length=50)
+    channel_44 = models.CharField(max_length=50)
+    channel_45 = models.CharField(max_length=50)
+    channel_46 = models.CharField(max_length=50)
+    channel_47 = models.CharField(max_length=50)
+    channel_48 = models.CharField(max_length=50)
+
+
+class CU(models.Model):
+    """ This model stores information about a particular CU """
+
+    assembler   = models.CharField('Assembler', max_length=50, default="")
+    date        = models.DateTimeField('Date of Assembly', default=timezone.now)
+    place       = models.CharField('Location of Assembly', max_length=50, default="")
+    cu_number   = models.IntegerField('CU number', default=-1)
+    qie_card    = models.ForeignKey(QieCard, on_delete=models.PROTECT)
+    pulser_board    = models.IntegerField('Pulser Board Number', default=-1)
+    optics_box  = models.IntegerField('Optics Box Number', default=-1)
+    pindiode_led1    = models.IntegerField('Pindiode_LED1 no.', default=-1)
+    pindiode_led2    = models.IntegerField('Pindiode_LED2 no.', default=-1)
+    pindiode_laser1  = models.IntegerField('Pindiode board_laser1 no.', default=-1)
+    pindiode_laser2  = models.IntegerField('Pindiode board_laser2 no.', default=-1)
+    pindiode_laser3  = models.IntegerField('Pindiode board_laser3 no.', default=-1)
+    pindiode_laser4  = models.IntegerField('Pindiode board_laser4 no.', default=-1)
 
 
 class Location(models.Model):
@@ -252,40 +342,15 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 
 
-class QieShuntParams(models.Model):
-    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
-    serial  = models.IntegerField(default=-1)
-    qie     = models.IntegerField(default=-1)
-    cap_ID  = models.IntegerField(default=-1)
-    cal_range   = models.IntegerField(default=-1)
-    shunt   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    slope   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    offset  = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    date    = models.DateTimeField('date received', default=timezone.now)
-    plots   = models.ImageField(upload_to=images_location, default="default.png")
-    results_file    = models.FileField(upload_to=logs_location, default='default.png')
-    
-
-class QieParams(models.Model):
-    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
-    serial  = models.IntegerField(default=-1)
-    qie     = models.IntegerField(default=-1)
-    cap_ID  = models.IntegerField(default=-1)
-    cal_range   = models.IntegerField(default=-1)
-    shunt   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    slope   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    offset  = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    date    = models.DateTimeField('date received', default=timezone.now)
-    plots   = models.ImageField(upload_to=images_location, default="default.png")
-    results_file    = models.FileField(upload_to=logs_location, default='default.png')
-
-
-class QieTdcParams(models.Model):
-    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE)
-    qie     = models.IntegerField(default=-1)
-    tdc_start   = models.DecimalField(max_digits=50, decimal_places=20, default=float('inf'))
-    plots   = models.ImageField(upload_to=images_location, default="default.png")
-    results_file    = models.FileField(upload_to=logs_location, default='default.png')
+class QieShuntParams(models.Model): 
+    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE, default=151)
+    group   = models.IntegerField(default=-1)
+    date    = models.DateTimeField('Date', default=timezone.now)
+    plots       = models.FileField(upload_to=logs_location, default='default.png')
+    mappings    = models.FileField(upload_to=logs_location, default='default.png')
+    results     = models.FileField(upload_to=logs_location, default='default.png')
+    download    = models.FileField(upload_to=logs_location, default='default.png')
+    failed      = models.BooleanField(default=False)
 
 
 @receiver(pre_save)

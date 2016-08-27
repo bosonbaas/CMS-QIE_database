@@ -15,6 +15,6 @@
 #               Run Caching scripts               #
 ###################################################
 
-python summary_json.py
-python plots_json.py
-python stats_json.py
+/usr/local/bin/python2.7 /home/django/testing_database/web_update/summary_json.py
+/usr/local/bin/python2.7 /home/django/testing_database/web_update/plots_json.py
+/usr/local/bin/python2.7 /home/django/testing_database/web_update/stats_json.py

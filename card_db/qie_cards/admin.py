@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule
+from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CU
 
 # This file describes the layout of the admin pages.
 
@@ -69,19 +69,21 @@ class ReadoutAdmin(admin.ModelAdmin):
                                  'mtp_optical_cable',
                                  'sipm_control_card',
                                 ]}),
-        ("LV Assembly", {'fields':[]}),
-        ("Thermal Assembly", {'fields':[]}),
+        ("LV Assembly", {'fields':['lv_assembly']}),
+        ("Thermal Assembly", {'fields':['therm_assembly']}),
         ("SiPM Assembly", {'fields':['sipm_array_1',
                                      'sipm_array_2',
                                      'sipm_array_3',
                                      'sipm_array_4',
                                      'sipm_array_5',
                                      'mixed_sipm_array',
+                                     'sipm_mounting',
                                      'odu_type',
                                      'odu_number', 
                                     ]}),
         ("Jtag", {'fields':[]}),
         ("RM Outer Shell", {'fields':['minsk']}),
+        ("Other", {'fields':['dcdc_output', 'upload']}),
         ]
     
     list_display = ('rm_number',)
@@ -92,6 +94,9 @@ class ReadoutAdmin(admin.ModelAdmin):
 
 # Registration of the models
 admin.site.register(QieCard, QieAdmin)
+admin.site.register(QieShuntParams)
 admin.site.register(Tester)
+admin.site.register(RMBiasVoltage)
 admin.site.register(Test, TestAdmin)
 admin.site.register(ReadoutModule, ReadoutAdmin)
+admin.site.register(CU)
