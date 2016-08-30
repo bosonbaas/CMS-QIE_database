@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CU
+from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CU, SipmControlCard
 
 # This file describes the layout of the admin pages.
 
@@ -23,7 +23,7 @@ class LocationsInLine(admin.StackedInline):
 
 
 class QieAdmin(admin.ModelAdmin):
-    """ Provides the layour for QieCard editing """
+    """ Provides the layout for QieCard editing """
     
     fieldsets = [
         ('QIE information', {'fields': ['barcode', 'uid', 'bridge_major_ver', 'bridge_minor_ver', 'bridge_other_ver', 'igloo_major_ver', 'igloo_minor_ver', 'comments']}),
@@ -90,7 +90,25 @@ class ReadoutAdmin(admin.ModelAdmin):
     ordering = ('rm_number',)
     searchfields = ('rm_number')
 
+class CUAdmin(admin.ModelAdmin):
+    """ Provides the layout for Calibration Unit (CU) editing. """
 
+    fieldsets = [
+        (None, {'fields': ['assembler', 'date', 'place', 'cu_number']}),
+        ("Boards", {'fields':['qie_card', 'pulser_board', 'optics_box']}),
+        ("Pin Diodes", {'fields':['pindiode_led1',
+                                  'pindiode_led2',
+                                  'pindiode_laser1',
+                                  'pindiode_laser2',
+                                  'pindiode_laser3',
+                                  'pindiode_laser4',
+                                  ]}),
+        ("Upload", {'fields':['upload', 'qc_complete']}),
+        ]
+
+    list_diplay = ('cu_number',)
+    ordering = ('cu_number',)
+    searchfields = ('cu_number')
 
 # Registration of the models
 admin.site.register(QieCard, QieAdmin)
@@ -99,4 +117,5 @@ admin.site.register(Tester)
 admin.site.register(RMBiasVoltage)
 admin.site.register(Test, TestAdmin)
 admin.site.register(ReadoutModule, ReadoutAdmin)
-admin.site.register(CU)
+admin.site.register(CU, CUAdmin)
+admin.site.register(SipmControlCard)

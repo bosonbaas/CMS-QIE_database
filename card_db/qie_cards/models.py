@@ -95,7 +95,7 @@ class QieCard(models.Model):
     bridge_other_ver    = models.CharField(max_length=8, default="", blank=True)
     igloo_major_ver     = models.CharField(max_length=4, default="", blank=True)
     igloo_minor_ver     = models.CharField(max_length=4, default="", blank=True)
-    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_uid_split(self):
         checkSum = self.uid[0:8]
@@ -131,9 +131,9 @@ class QieCard(models.Model):
     def get_bridge_ver_hex(self):
         if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
             return "Not Uploaded"
-        major = self.bridge_major_ver.zfill(2)
-        minor = self.bridge_minor_ver.zfill(2)
-        other = self.bridge_other_ver.zfill(4)
+        major = str(self.bridge_major_ver.zfill(2))[2:]
+        minor = str(self.bridge_minor_ver.zfill(2))[2:]
+        other = str(self.bridge_other_ver.zfill(4))[2:]
         return major + "." + minor + "." + other
 
     def get_igloo_ver(self):
@@ -146,8 +146,8 @@ class QieCard(models.Model):
     def get_igloo_ver_hex(self):
         if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
             return "Not Uploaded"
-        major = self.igloo_major_ver.zfill(2)
-        minor = self.igloo_minor_ver.zfill(2)
+        major = str(self.igloo_major_ver.zfill(2))[2:]
+        minor = str(self.igloo_minor_ver.zfill(2))[2:]
         return major + "." + minor
 
     def __str__(self):
@@ -333,21 +333,38 @@ class RMBiasVoltage(models.Model):
 
 
 class CU(models.Model):
-    """ This model stores information about a particular CU """
+    """ This model stores information about a particular Calibration Unit (CU). """
 
     assembler   = models.CharField('Assembler', max_length=50, default="")
     date        = models.DateTimeField('Date of Assembly', default=timezone.now)
     place       = models.CharField('Location of Assembly', max_length=50, default="")
-    cu_number   = models.IntegerField('CU number', default=-1)
-    qie_card    = models.ForeignKey(QieCard, on_delete=models.PROTECT)
-    pulser_board    = models.IntegerField('Pulser Board Number', default=-1)
-    optics_box  = models.IntegerField('Optics Box Number', default=-1)
-    pindiode_led1    = models.IntegerField('Pindiode_LED1 no.', default=-1)
-    pindiode_led2    = models.IntegerField('Pindiode_LED2 no.', default=-1)
-    pindiode_laser1  = models.IntegerField('Pindiode board_laser1 no.', default=-1)
-    pindiode_laser2  = models.IntegerField('Pindiode board_laser2 no.', default=-1)
-    pindiode_laser3  = models.IntegerField('Pindiode board_laser3 no.', default=-1)
-    pindiode_laser4  = models.IntegerField('Pindiode board_laser4 no.', default=-1)
+    cu_number   = models.IntegerField('CU №', default=-1)
+    qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)
+    pulser_board    = models.IntegerField('Pulser Board №', default=-1)
+    optics_box  = models.IntegerField('Optics Box №', default=-1)
+    pindiode_led1    = models.IntegerField('Pindiode_LED1 №', default=-1)
+    pindiode_led2    = models.IntegerField('Pindiode_LED2 №.', default=-1)
+    pindiode_laser1  = models.IntegerField('Pindiode board_laser1 №', default=-1)
+    pindiode_laser2  = models.IntegerField('Pindiode board_laser2 №', default=-1)
+    pindiode_laser3  = models.IntegerField('Pindiode board_laser3 №', default=-1)
+    pindiode_laser4  = models.IntegerField('Pindiode board_laser4 №', default=-1)
+    upload           = models.FileField('QC Data File', upload_to='cu_calibration/', default='default.png')
+    qc_complete      = models.BooleanField('QC Complete', default=False)
+
+    def __str__(self):
+        return str(self.cu_number)
+
+
+class SipmControlCard(models.Model):
+    """ This model stores information about a particular SiPM Control Card."""
+    
+    sipm_control_card  = models.IntegerField('SiPM Control Card №', default=-1)
+    bv_converter_card  = models.IntegerField('BV Converter Card №', default=-1)
+    comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    upload              = models.FileField('Calibration Data File', upload_to='sipm_control', default='default.png')
+
+    def __str__(self):
+        return str(self.sipm_control_card)
 
 
 class Location(models.Model):
