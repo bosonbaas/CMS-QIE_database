@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'qf7d+2)^)r3hbr42&^fe*xb)v39-@*c43)y)392_p%o-=8!14^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
 	'localhost',
@@ -127,3 +127,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+# Toggle whether data caching is on 
+# (slower update, but faster webpage load time)
+
+CACHE_DATA = True

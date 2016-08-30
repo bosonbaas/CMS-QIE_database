@@ -1,3 +1,4 @@
+import sqlite3
 from django.shortcuts import render
 from django.views import generic
 import datetime
@@ -5,7 +6,7 @@ from os import listdir, path
 import json
 from sets import Set
 
-from .models import QieCard, Tester, Test, Attempt, Location
+from .models import QieCard, Tester, Test, Attempt, Location, QieShuntParams 
 import custom.filters as filters
 
 # Create your views here.
@@ -50,6 +51,64 @@ def summary(request):
     
     return render(request, 'qie_cards/summary.html', {'cards': cardStat})
 
+
+def calibration(request, card):
+    """ This displays a summary of the cards """
+
+    try:
+        p = QieCard.objects.get(barcode__endswith=card)
+    except QieCard.DoesNotExist:
+        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    
+    calibrations = p.qieshuntparams_set.all().order_by("group")
+
+    return render(request, 'qie_cards/calibration.html', {'card': p, 'cals': list(calibrations)})
+
+def calResults(request, card, group):
+    try:
+        p = QieCard.objects.get(barcode__endswith=card)
+    except QieCard.DoesNotExist:
+        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    calibration = p.qieshuntparams_set.get(group=group)
+
+    if str(calibration.results) != "default.png":
+        conn = sqlite3.connect(path.join(MEDIA_ROOT, str(calibration.results)))
+        c = conn.cursor()
+        c.execute("select * from qieshuntparams")
+        data = []
+        for item in c:
+            temp = { "id":str(item[0]),
+                     "serial":str(item[1]),
+                     "qie":str(item[2]),
+                     "capID":str(item[3]),
+                     "range":str(item[4]),
+                     "shunt":str(item[5]),
+                     "date":str(item[7]),
+                     "slope":str(item[8]),
+                     "offset":str(item[9]),
+                    }
+            data.append(temp)
+    return render(request, 'qie_cards/cal_results.html', {'card': p,
+                                                          'data': data,
+                                                         })
+
+def calPlots(request, card, group):
+    try:
+        p = QieCard.objects.get(barcode__endswith=card)
+    except QieCard.DoesNotExist:
+        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    calibration = p.qieshuntparams_set.get(group=group)
+
+    files = []
+
+    if str(calibration.plots) != "default.png" and path.isdir(path.join(MEDIA_ROOT, str(calibration.plots))):
+        for f in listdir(path.join(MEDIA_ROOT, str(calibration.plots))):
+            files.append(path.join(calibration.plots.url, path.basename(f)))
+    else:
+        files.append("No Data!")
+    return render(request, 'qie_cards/cal_plots.html', {'card': p,
+                                                        'plots': files,
+                                                         })
 class TestersView(generic.ListView):
     """ This displays the users and email addresses """
     
@@ -192,13 +251,13 @@ def testDetail(request, card, test):
         if not str(attempt.hidden_log_file) == "default.png":
             inFile = open(path.join(MEDIA_ROOT, str(attempt.hidden_log_file)), "r")
             tempDict = json.load(inFile)
-            if attempt.test_type.abbreviation == "overall pedestal": 
+            if attempt.test_type.abbreviation == "overall pedestal" and "pedResults" in tempDict["TestOutputs"]: 
                 data = tempDict["TestOutputs"]["pedResults"]
-            elif attempt.test_type.abbreviation == "overall charge injection": 
+            elif attempt.test_type.abbreviation == "overall charge injection" and "ciResults" in tempDict["TestOutputs"]: 
                 data = tempDict["TestOutputs"]["ciResults"]
-            elif attempt.test_type.abbreviation == "overall phase scan":
+            elif attempt.test_type.abbreviation == "overall phase scan" and "phaseResults" in tempDict["TestOutputs"]:
                 data = tempDict["TestOutputs"]["phaseResults"]
-            elif attempt.test_type.abbreviation == "overall shunt scan":
+            elif attempt.test_type.abbreviation == "overall shunt scan" and "shuntResults" in tempDict["TestOutputs"]:
                 data = tempDict["TestOutputs"]["shuntResults"]
             elif "ResultStrings" in tempDict:
                 if attempt.test_type.abbreviation in tempDict["ResultStrings"]:
@@ -223,7 +282,8 @@ def fieldView(request):
                "igloo_major_ver",
                "igloo_minor_ver",
                "comments",
-               "last location"]
+               "last location",
+               "Card Status"]
     
     fields = []
     for i in range(5):
@@ -233,16 +293,32 @@ def fieldView(request):
                 fields.append(field)
 
 
-    cards = list(QieCard.objects.all())
+    cards = list(QieCard.objects.all().order_by("barcode"))
     items = []
+    # Info for "Card Status"
+    cache = path.join(MEDIA_ROOT, "cached_data/summary.json")
+    infile = open(cache, "r")
+    cardStat = json.load(infile)
+    num_required = len(Test.objects.filter(required=True))
     
-    for card in cards:
+    for i in xrange(len(cards)):
+        card = cards[i]
         item = {}
         item["id"] = card.pk
         item["fields"] = []
         for field in fields:
             if field == "last location":
                 item["fields"].append(card.location_set.all().order_by("date_received").reverse()[0].geo_loc)
+            elif field == "Card Status":
+                if cardStat[i]["num_failed"] != 0:
+                    item["fields"].append("FAILED")
+                elif cardStat[i]["num_passed"] == num_required:
+                    if cardStat[i]["forced"]:
+                        item["fields"].append("GOOD (FORCED)")
+                    else:
+                        item["fields"].append("GOOD")
+                else:
+                    item["fields"].append("INCOMPLETE")
             else:
                 item["fields"].append(getattr(card, field))
 

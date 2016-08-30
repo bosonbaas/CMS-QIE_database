@@ -66,13 +66,16 @@ cardData = json.load(infile)
 barcode = cardData["Barcode"]
 uid = cardData["Unique_ID"]
 
-try:
-    qie = QieCard.objects.get(uid=getUID(uid))
-except:
+if barcode == "": 
+    try:
+        qie = QieCard.objects.get(uid=getUID(uid))
+    except:
+        sys.exit('QIE card with uid "%s" is not in the database' % getUID(uid))
+else:
     try:    
         qie = QieCard.objects.get(barcode=barcode)
     except:
-        sys.exit('QIE card with barcode "%s" is not in the database' % cardData["Barcode"])
+        sys.exit('QIE card with barcode "%s" is not in the database' % barcode)
 
 #load time of test
 date = cardData["DateRun"] + "-06:00"

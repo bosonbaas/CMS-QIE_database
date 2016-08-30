@@ -32,7 +32,7 @@ media=media             # name of the media folder
 dest=$backupPath$(date +$dtFormat)  # name of the compressed backup file
 
 # Compress current version of database and media files
-tar -zcf $dest.tar.gz -C $mediaPath $media -C $commonPath card_db --exclude .git --exclude .gitignore
+tar -zcf $dest.tar.gz -C $mediaPath $media --exclude media/callibration -C $commonPath card_db --exclude .git --exclude .gitignore
 
 ###################################################
 #            Delete old DB backups                #
