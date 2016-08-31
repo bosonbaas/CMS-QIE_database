@@ -334,13 +334,13 @@ class RMBiasVoltage(models.Model):
     def __str__(self):
         return str(self.readout_module)
 
-class CU(models.Model):
+class CalibrationUnit(models.Model):
     """ This model stores information about a particular Calibration Unit (CU). """
 
     assembler   = models.CharField('Assembler', max_length=50, default="")
     date        = models.DateTimeField('Date of Assembly', default=timezone.now)
     place       = models.CharField('Location of Assembly', max_length=50, default="")
-    cu_number   = models.IntegerField('CU №', default=-1)
+    cu_number   = models.IntegerField('Calibration Unit №', default=-1)
     qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)
     pulser_board    = models.IntegerField('Pulser Board №', default=-1)
     optics_box  = models.IntegerField('Optics Box №', default=-1)
@@ -363,7 +363,7 @@ class SipmControlCard(models.Model):
     sipm_control_card  = models.IntegerField('SiPM Control Card №', default=-1)
     bv_converter_card  = models.IntegerField('BV Converter Card №', default=-1)
     comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    upload              = models.FileField('Calibration Data File', upload_to='sipm_control', default='default.png')
+    upload              = models.FileField('Calibration Data File', upload_to='sipm_control_card', default='default.png')
 
     def __str__(self):
         return str(self.sipm_control_card)

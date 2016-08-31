@@ -20,6 +20,8 @@ from django.views.generic import RedirectView
 urlpatterns = [
     url(r'^cards/', include('qie_cards.card_urls')),
     url(r'^rm/', include('qie_cards.rm_urls')),
+    url(r'^cu/', include('qie_cards.cu_urls')),
+    url(r'^sipm/', include('qie_cards.sipm_urls')),
     url(r'^$', RedirectView.as_view(url='cards/catalog')),
     url(r'^admin/', admin.site.urls),
 ]

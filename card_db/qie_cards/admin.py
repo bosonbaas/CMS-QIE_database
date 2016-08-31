@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CU, SipmControlCard
+from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CalibrationUnit, SipmControlCard
 
 # This file describes the layout of the admin pages.
 
@@ -119,5 +119,5 @@ admin.site.register(Tester)
 admin.site.register(RMBiasVoltage)
 admin.site.register(Test, TestAdmin)
 admin.site.register(ReadoutModule, ReadoutAdmin)
-admin.site.register(CU, CUAdmin)
+admin.site.register(CalibrationUnit, CUAdmin)
 admin.site.register(SipmControlCard)
