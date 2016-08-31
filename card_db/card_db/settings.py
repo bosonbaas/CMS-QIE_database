@@ -127,3 +127,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+# Toggle whether data caching is on 
+# (slower update, but faster webpage load time)
+
+CACHE_DATA = True
