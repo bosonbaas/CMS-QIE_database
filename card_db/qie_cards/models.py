@@ -98,13 +98,13 @@ class QieCard(models.Model):
     comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_uid_split(self):
-        checkSum = self.uid[0:8]
-        familyName = self.uid[8:16]
+        checkSum = self.uid[0:8].upper()
+        familyName = self.uid[8:16].upper()
         return "0x" + checkSum + " 0x" + familyName
 
     def get_uid_flipped(self):
-        familyName = self.uid[8:16]
-        checkSum = self.uid[0:8]
+        familyName = self.uid[8:16].upper()
+        checkSum = self.uid[0:8].upper()
         return "0x" + familyName + " 0x" + checkSum
 
     def get_uid_mac(self):
@@ -112,7 +112,7 @@ class QieCard(models.Model):
         raw = self.uid[2:]
         refined = ""
         for i in range(6):
-            refined += raw[2*i : 2*(i + 1)]
+            refined += raw[2*i : 2*(i + 1)].upper()
             refined += ':'
         return refined[:17]
 
@@ -123,32 +123,32 @@ class QieCard(models.Model):
     def get_bridge_ver(self):
         if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
             return "Not Uploaded"
-        major = str(int(self.bridge_major_ver, 16))
-        minor = str(int(self.bridge_minor_ver, 16))
-        other = str(int(self.bridge_other_ver, 16))
+        major = str(int(self.bridge_major_ver, 16)).upper()
+        minor = str(int(self.bridge_minor_ver, 16)).upper()
+        other = str(int(self.bridge_other_ver, 16)).upper()
         return major + "." + minor + "." + other
 
     def get_bridge_ver_hex(self):
         if self.bridge_major_ver == "" or self.bridge_minor_ver == "" or self.bridge_other_ver == "":
             return "Not Uploaded"
-        major = str(self.bridge_major_ver.zfill(2))[2:]
-        minor = str(self.bridge_minor_ver.zfill(2))[2:]
-        other = str(self.bridge_other_ver.zfill(4))[2:]
-        return major + "." + minor + "." + other
+        major = str(self.bridge_major_ver.zfill(2))[2:].upper()
+        minor = str(self.bridge_minor_ver.zfill(2))[2:].upper()
+        other = str(self.bridge_other_ver.zfill(4))[2:].upper()
+        return major + "_" + minor + "_" + other
 
     def get_igloo_ver(self):
         if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
             return "Not Uploaded"
-        major = str(int(self.igloo_major_ver, 16))
-        minor = str(int(self.igloo_minor_ver, 16))
+        major = str(int(self.igloo_major_ver, 16)).upper()
+        minor = str(int(self.igloo_minor_ver, 16)).upper()
         return major + "." + minor
 
     def get_igloo_ver_hex(self):
         if self.igloo_major_ver == "" or self.igloo_minor_ver == "":
             return "Not Uploaded"
-        major = str(self.igloo_major_ver.zfill(2))[2:]
-        minor = str(self.igloo_minor_ver.zfill(2))[2:]
-        return major + "." + minor
+        major = str(self.igloo_major_ver.zfill(2))[2:].upper()
+        minor = str(self.igloo_minor_ver.zfill(2))[2:].upper()
+        return major + "_" + minor
 
     def __str__(self):
        return str(self.barcode)
@@ -331,14 +331,16 @@ class RMBiasVoltage(models.Model):
     channel_47 = models.CharField(max_length=50)
     channel_48 = models.CharField(max_length=50)
 
+    def __str__(self):
+        return str(self.readout_module)
 
-class CU(models.Model):
+class CalibrationUnit(models.Model):
     """ This model stores information about a particular Calibration Unit (CU). """
 
     assembler   = models.CharField('Assembler', max_length=50, default="")
     date        = models.DateTimeField('Date of Assembly', default=timezone.now)
     place       = models.CharField('Location of Assembly', max_length=50, default="")
-    cu_number   = models.IntegerField('CU №', default=-1)
+    cu_number   = models.IntegerField('Calibration Unit №', default=-1)
     qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)
     pulser_board    = models.IntegerField('Pulser Board №', default=-1)
     optics_box  = models.IntegerField('Optics Box №', default=-1)
@@ -361,7 +363,7 @@ class SipmControlCard(models.Model):
     sipm_control_card  = models.IntegerField('SiPM Control Card №', default=-1)
     bv_converter_card  = models.IntegerField('BV Converter Card №', default=-1)
     comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    upload              = models.FileField('Calibration Data File', upload_to='sipm_control', default='default.png')
+    upload              = models.FileField('Calibration Data File', upload_to='sipm_control_card', default='default.png')
 
     def __str__(self):
         return str(self.sipm_control_card)
@@ -388,6 +390,10 @@ class QieShuntParams(models.Model):
     results     = models.FileField(upload_to=logs_location, default='default.png')
     download    = models.FileField(upload_to=logs_location, default='default.png')
     failed      = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.card)
+
 
 @receiver(pre_save)
 def pre_save_handler(sender, instance, *args, **kwargs):

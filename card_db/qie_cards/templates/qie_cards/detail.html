@@ -34,74 +34,12 @@
 </style>
 {% endblock %}
 
-<!-- Card Overview Version 1 -->
-<!--
-<div class="row" align="left" style="padding-left:50px;">
-    <h3>Card Overview</h3>
-    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
-</div><br>
-
-<div class="row" align="left">
-    <div class="col-md-3" style="padding-left:50px;">
-        <h4>Barcode:</h4>
-        <h4>UID:</h4>
-        <h4>Bridge Firmware:</h4>
-        <h4>Igloo Firmware:</h4>
-    </div>
-    <div class="col-md-4">
-        <h4>{{card.barcode}}</h4>
-        <h4>{{card.get_uid_flipped}}</h4>
-        <h4>{{card.get_bridge_ver}}</h4>
-        <h4>{{card.get_igloo_ver}}</h4>
-    </div>
-    <div class="col-md-1">
-        <h4>Status:</h4>
-    </div>
-    <div class="col-md-3 {{status.css}}">
-        <h4>{{status.banner}}</h4>
-        <h4>{{status.passed}}/{{status.total}} tests passing</h4>
-        <a href="calibration" class="btn btn-primary">To Calibration Data</a>
-    </div>
-</div><br>
--->
-<!-- Card Overview Version 2 -->
-<!--
-<div class="row" align="left" style="padding-left:50px;">
-    <h3>Card Overview</h3>
-    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
-</div><br>
-
-<div class="row" align="left">
-    <div class="col-md-3" style="padding-left:50px;">
-        <h4>Barcode:</h4>
-        <h4>Unique ID:</h4>
-        <h4>Bridge FW:</h4>
-        <h4>Igloo FW:</h4>
-    </div>
-    <div class="col-md-3">
-        <h4>{{card.barcode}}</h4>
-        <h4>{{card.get_uid_mac}}</h4>
-        <h4>{{card.get_bridge_ver_hex}}</h4>
-        <h4>{{card.get_igloo_ver_hex}}</h4>
-    </div>
-    <div class="col-md-3">
-        <h4>~~~</h4>
-        <h4>{{card.get_uid_flipped}}</h4>
-        <h4>{{card.get_bridge_ver}}</h4>
-        <h4>{{card.get_igloo_ver}}</h4>
-    </div>
-    <div class="col-md-3 {{status.css}}">
-        <h4>Status: {{status.banner}}</h4>
-        <h4>{{status.passed}}/{{status.total}} tests passing</h4>
-    </div>
-</div><br>
--->
 
 {% block content %}
 <!-- Card Info Table -->
 <div class="row" align="left" style="padding-left:50px;">
     <h3>
-        Card Overview
+        QIE Card Overview
         <div class="divider"></div>
         <a href="calibration" class="btn btn-primary">To Calibration Data</a>
     </h3>
@@ -123,17 +61,17 @@
         <tr>
             <td>Unique ID:</td>
             <td>{{card.get_uid_mac}}</td>
-            <td>{{card.get_uid_flipped}}</td>
+            <td>({{card.get_uid_flipped}})</td>
         </tr>
         <tr>
             <td>Bridge FW:</td>
             <td>{{card.get_bridge_ver_hex}}</td>
-            <td>{{card.get_bridge_ver}}</td>
+            <td>({{card.get_bridge_ver}})</td>
         </tr>
         <tr>
             <td>Igloo FW:</td>
             <td>{{card.get_igloo_ver_hex}}</td>
-            <td>{{card.get_igloo_ver}}</td>
+            <td>({{card.get_igloo_ver}})</td>
         </tr>
         </div>
     </tbody>

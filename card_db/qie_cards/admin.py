@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CU, SipmControlCard
+from .models import QieCard, Attempt, Tester, Test, Location, ReadoutModule, QieShuntParams, RMBiasVoltage, CalibrationUnit, SipmControlCard
 
 # This file describes the layout of the admin pages.
 
@@ -95,8 +95,10 @@ class CUAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (None, {'fields': ['assembler', 'date', 'place', 'cu_number']}),
-        ("Boards", {'fields':['qie_card', 'pulser_board', 'optics_box']}),
-        ("Pin Diodes", {'fields':['pindiode_led1',
+        ("Components", {'fields':['qie_card', 
+                                  'pulser_board', 
+                                  'optics_box',
+                                  'pindiode_led1',
                                   'pindiode_led2',
                                   'pindiode_laser1',
                                   'pindiode_laser2',
@@ -117,5 +119,5 @@ admin.site.register(Tester)
 admin.site.register(RMBiasVoltage)
 admin.site.register(Test, TestAdmin)
 admin.site.register(ReadoutModule, ReadoutAdmin)
-admin.site.register(CU, CUAdmin)
+admin.site.register(CalibrationUnit, CUAdmin)
 admin.site.register(SipmControlCard)
