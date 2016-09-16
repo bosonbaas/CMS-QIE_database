@@ -71,18 +71,29 @@
                     <li><a href="https://nbay11.fnal.gov/admin">Admin</a></li>
                 </ul>
                 {% endblock %}
-                <form class="navbar-form navbar-right" action="#" role="search">
-                <div class="form-group">
-                  <div class="input-group">
-                    <input class="form-control" id="navbarInput" type="search" placeholder="Search Card #">
-                    <span class="input-group-btn">
-                      <button type="submit" onclick="search(event)" class="btn"><span class="fui-search"></span></button>
-                    </span>
-                  </div>
-                </div>
-              </form>
-
             </div>
+            <!-- Barcode Search -->
+            <form class="navbar-form navbar-left" action="#" role="search">
+              <div class="form-group">
+                <div class="input-group">
+                  <input class="form-control" id="navbarInputBarcode" type="search" placeholder="Search Barcode">
+                  <span class="input-group-btn">
+                    <button type="submit" onclick="searchBarcode(event)" class="btn"><span class="fui-search"></span></button>
+                  </span>
+                </div>
+              </div>
+            </form>
+            <!-- Unique ID Search -->
+            <form class="navbar-form navbar-right" action="#" role="search">
+              <div class="form-group">
+                <div class="input-group">
+                  <input class="form-control" id="navbarInputUID" type="search" placeholder="Search Unique ID">
+                  <span class="input-group-btn">
+                    <button type="submit" onclick="searchUID(event)" class="btn"><span class="fui-search"></span></button>
+                  </span>
+                </div>
+              </div>
+            </form>
         </div>
     </div>
    
@@ -103,18 +114,35 @@
 
 {% block script %}
 <script>
-function search(e){
-    cardID = document.getElementById("navbarInput").value;
-    if( cardID.length > 3){
+function searchBarcode(e){
+    cardBarcode = document.getElementById("navbarInputBarcode").value;
+    if( cardBarcode.length > 7){
         e.preventDefault();
-        document.location.href = "https://nbay11.fnal.gov/cards/" + cardID.substring(cardID.length - 3);
+        document.location.href = "https://nbay11.fnal.gov/cards/error";
+    } else if( cardBarcode.length > 3){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/cards/" + cardBarcode.substring(cardBarcode.length - 3);
     } else {
         appendage = ""
-        while(appendage.length + cardID.length < 3){
+        while(appendage.length + cardBarcode.length < 3){
             appendage = appendage + "0";
         }
         e.preventDefault();
-        window.location.href = "https://nbay11.fnal.gov/cards/" + appendage + cardID;
+        window.location.href = "https://nbay11.fnal.gov/cards/" + appendage + cardBarcode;
+    }
+}
+function searchUID(e){
+    family = "70"
+    cardUID = document.getElementById("navbarInputUID").value;
+    if( cardUID.length > 16){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/cards/error";
+    } else if( cardUID.length > 5){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/cards/uid/" + cardUID.substring(cardUID.length - 6) + family;
+    } else {
+        e.preventDefault();
+        window.location.href = "https://nbay11.fnal.gov/cards/error";
     }
 }
 </script>

@@ -98,17 +98,25 @@ class QieCard(models.Model):
     comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
 
     def get_uid_split(self):
+        """ Parses the raw UID into split form (first 4 bytes, last 4 bytes) """
+        if self.uid == "":
+            return "Not Uploaded"
         checkSum = self.uid[0:8].upper()
         familyName = self.uid[8:16].upper()
         return "0x" + checkSum + " 0x" + familyName
 
     def get_uid_flipped(self):
+        """ Parses the raw UID into flipped-split form (last 4 bytes, first 4 bytes) """
+        if self.uid == "":
+            return "Not Uploaded"
         familyName = self.uid[8:16].upper()
         checkSum = self.uid[0:8].upper()
         return "0x" + familyName + " 0x" + checkSum
 
     def get_uid_mac(self):
         """ Parses the raw UID into a mac-address format """
+        if self.uid == "":
+            return "Not Uploaded"
         raw = self.uid[2:]
         refined = ""
         for i in range(6):
@@ -116,8 +124,19 @@ class QieCard(models.Model):
             refined += ':'
         return refined[:17]
 
+    def get_uid_mac_simple(self):
+        """ Parses the raw UID into a mac-address format """
+        if self.uid == "":
+            return "Not Uploaded"
+        if len(self.uid) != 16:
+            return "Complete Unique ID not 8 bytes long (16 characters)."
+        raw = self.uid[2:-2]
+        return raw 
+    
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
+        if self.barcode == "":
+            return "QIE Card barcode not in database"
         return self.barcode[(len(self.barcode) - 3):]
 
     def get_bridge_ver(self):
@@ -342,16 +361,21 @@ class CalibrationUnit(models.Model):
     place       = models.CharField('Location of Assembly', max_length=50, default="")
     cu_number   = models.IntegerField('Calibration Unit №', default=-1)
     qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)
-    pulser_board    = models.IntegerField('Pulser Board №', default=-1)
-    optics_box  = models.IntegerField('Optics Box №', default=-1)
+    qie_adapter      = models.IntegerField('QIE Adapter №', default=-1)
+    pulser_board     = models.IntegerField('Pulser Board №', default=-1)
+    optics_box       = models.IntegerField('Optics Box №', default=-1)
     pindiode_led1    = models.IntegerField('Pindiode_LED1 №', default=-1)
     pindiode_led2    = models.IntegerField('Pindiode_LED2 №.', default=-1)
     pindiode_laser1  = models.IntegerField('Pindiode board_laser1 №', default=-1)
     pindiode_laser2  = models.IntegerField('Pindiode board_laser2 №', default=-1)
     pindiode_laser3  = models.IntegerField('Pindiode board_laser3 №', default=-1)
     pindiode_laser4  = models.IntegerField('Pindiode board_laser4 №', default=-1)
-    upload           = models.FileField('QC Data File', upload_to='cu_calibration/', default='default.png')
+    sma_connector_mounted = models.BooleanField('SMA Connector Mounted', default=False)
+    quartz_fiber_inserted = models.BooleanField('Quartz Fiber Inserted', default=False)
+    hirose_signal_connected = models.BooleanField('Hirose Signal Connected', default=False)
+    reference_cable_connected = models.BooleanField('Reference Cable Conncected', default=False)
     qc_complete      = models.BooleanField('QC Complete', default=False)
+    upload           = models.FileField('QC Data File', upload_to='cu_calibration/', default='default.png')
 
     def __str__(self):
         return str(self.cu_number)

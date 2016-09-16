@@ -1,0 +1,27 @@
+{% extends "sipm_cards/base.html" %}
+
+{% block title %}{{sipm.sipm_number}}{% endblock %}
+
+{% block content %}
+
+<div class="row" align="left" style="padding-left:50px;">
+    <h3>SiPM Card Overview</h3>
+    <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
+</div><br>
+
+<div class="row" align="left">
+    <div class="col-md-5" style="padding-left:50px;">
+        <h4>SiPM Control Card №:</h4>
+        <h4>BV Converter Card №:</h4>
+        <h4>Comments:</h4>
+        <h4>Uploaded File:</h4>
+    </div>
+    <div class="col-md-4">
+        <h4>{{sipm.sipm_control_card}}</h4>
+        <h4>{{sipm.bv_converter_card}}</h4>
+        <h4>{{sipm.comments}}</h4>
+    </div>
+    <a href="{{sipm.upload.url}}"><img src="{{sipm.upload.url}}" style="width:60%;height:60%;"></a>
+</div><br>
+
+{% endblock %}

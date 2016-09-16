@@ -96,6 +96,7 @@ class CUAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['assembler', 'date', 'place', 'cu_number']}),
         ("Components", {'fields':['qie_card', 
+                                  'qie_adapter',
                                   'pulser_board', 
                                   'optics_box',
                                   'pindiode_led1',
@@ -103,9 +104,12 @@ class CUAdmin(admin.ModelAdmin):
                                   'pindiode_laser1',
                                   'pindiode_laser2',
                                   'pindiode_laser3',
-                                  'pindiode_laser4',
-                                  ]}),
-        ("Upload", {'fields':['upload', 'qc_complete']}),
+                                  'pindiode_laser4']}),
+        ("Connections", {'fields':['sma_connector_mounted',
+                                   'quartz_fiber_inserted',
+                                   'hirose_signal_connected']}),
+        ("Quality Control", {'fields':['qc_complete']}),
+        ("Upload", {'fields':['upload']}),
         ]
 
     list_diplay = ('cu_number',)

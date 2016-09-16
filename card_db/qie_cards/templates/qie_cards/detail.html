@@ -36,7 +36,6 @@
 
 
 {% block content %}
-<!-- Card Info Table -->
 <div class="row" align="left" style="padding-left:50px;">
     <h3>
         QIE Card Overview
@@ -46,6 +45,7 @@
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
 
+<!-- Card Info Table -->
 <table id="cardinfo" class="table" style="margin-left:50px; font-size:30px;" cellspacing="0" width="50%">
     <tbody>
         <div id="accordion" class="collapse">
@@ -53,6 +53,7 @@
             <td>Status:</td>
             <td class={{status.css}}>{{status.banner}}</td>
             <td class={{status.css}}>{{status.passed}}/{{status.total}} tests passing</td>
+        </tr>
         <tr>
             <td>Barcode:</td>
             <td>{{card.barcode}}</td>

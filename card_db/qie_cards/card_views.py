@@ -54,21 +54,33 @@ def summary(request):
 
 def calibration(request, card):
     """ This displays a summary of the cards """
+    if len(card) > 7:
+        try:
+            p = QieCard.objects.get(uid__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+    else:
+        try:
+            p = QieCard.objects.get(barcode__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with barcode " + str(card) + " does not exist")
 
-    try:
-        p = QieCard.objects.get(barcode__endswith=card)
-    except QieCard.DoesNotExist:
-        raise Http404("QIE card with barcode " + str(card) + " does not exist")
-    
     calibrations = p.qieshuntparams_set.all().order_by("group")
 
     return render(request, 'qie_cards/calibration.html', {'card': p, 'cals': list(calibrations)})
 
 def calResults(request, card, group):
-    try:
-        p = QieCard.objects.get(barcode__endswith=card)
-    except QieCard.DoesNotExist:
-        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    """ This displays details about tests on a card """
+    if len(card) > 7:
+        try:
+            p = QieCard.objects.get(uid__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+    else:
+        try:
+            p = QieCard.objects.get(barcode__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with barcode " + str(card) + " does not exist")
     calibration = p.qieshuntparams_set.get(group=group)
 
     if str(calibration.results) != "default.png":
@@ -78,7 +90,7 @@ def calResults(request, card, group):
         data = []
         for item in c:
             temp = { "id":str(item[0]),
-                     "serial":str(item[1]),
+                     "serial":str(p.barcode),
                      "qie":str(item[2]),
                      "capID":str(item[3]),
                      "range":str(item[4]),
@@ -93,10 +105,17 @@ def calResults(request, card, group):
                                                          })
 
 def calPlots(request, card, group):
-    try:
-        p = QieCard.objects.get(barcode__endswith=card)
-    except QieCard.DoesNotExist:
-        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    """ This displays details about tests on a card """
+    if len(card) > 7:
+        try:
+            p = QieCard.objects.get(uid__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+    else:
+        try:
+            p = QieCard.objects.get(barcode__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with barcode " + str(card) + " does not exist")
     calibration = p.qieshuntparams_set.get(group=group)
 
     files = []
@@ -153,13 +172,19 @@ def stats(request):
                      }
 
     return render(request, 'qie_cards/stats.html', statistics)
- 
+
 def detail(request, card):
     """ This displays details about tests on a card """
-    try:
-        p = QieCard.objects.get(barcode__endswith=card)
-    except QieCard.DoesNotExist:
-        raise Http404("QIE card with barcode " + str(card) + " does not exist")
+    if len(card) > 7:
+        try:
+            p = QieCard.objects.get(uid__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+    else:
+        try:
+            p = QieCard.objects.get(barcode__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with barcode " + str(card) + " does not exist")
 
     tests = Test.objects.all()
     locations = Location.objects.filter(card=p)
@@ -219,6 +244,17 @@ def detail(request, card):
                                                      'status':status,
                                                     })
 
+#class CatalogView(generic.ListView):
+#    """ This displays a list of all QIE cards """
+#    
+#    template_name = 'qie_cards/catalog.html'
+#    context_object_name = 'barcode_list'
+#    def get_queryset(self):
+#        return QieCard.objects.all().order_by('barcode')
+#
+def error(request): 
+    """ This displays an error for incorrect barcode or unique id """
+    return render(request, 'qie_cards/error.html')
 
 class PlotView(generic.ListView):
     """ This displays various plots of data """
@@ -229,10 +265,17 @@ class PlotView(generic.ListView):
         return list(Test.objects.all())
 
 def testDetail(request, card, test):
-    try:
-        qieCard = QieCard.objects.get(barcode__endswith=card)
-    except QieCard.DoesNotExist:
-        raise Http404("QIE card does not exist")
+    """ This displays details about tests on a card """
+    if len(card) > 7:
+        try:
+            p = QieCard.objects.get(uid__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+    else:
+        try:
+            p = QieCard.objects.get(barcode__endswith=card)
+        except QieCard.DoesNotExist:
+            raise Http404("QIE card with barcode " + str(card) + " does not exist")
     try:
         curTest = Test.objects.get(name=test)
     except QieCard.DoesNotExist:
@@ -244,7 +287,7 @@ def testDetail(request, card, test):
             attempt.overwrite_pass = not attempt.overwrite_pass
             attempt.save()
     
-    attemptList = list(Attempt.objects.filter(card=qieCard, test_type=curTest).order_by("attempt_number").reverse())
+    attemptList = list(Attempt.objects.filter(card=p, test_type=curTest).order_by("attempt_number").reverse())
     attemptData = []
     for attempt in attemptList:
         data = ""
@@ -266,7 +309,7 @@ def testDetail(request, card, test):
 
     firstTest = []
 
-    return render(request, 'qie_cards/testDetail.html', {'card': qieCard,
+    return render(request, 'qie_cards/testDetail.html', {'card': p,
                                                          'test': curTest,
                                                          'attempts': attemptData
                                                          })
