@@ -53,7 +53,7 @@ def summary(request):
 
 
 def calibration(request, card):
-    """ This displays a summary of the cards """
+    """ This displays the calibration overview for a card """
     if len(card) > 7:
         try:
             p = QieCard.objects.get(uid__endswith=card)
@@ -70,7 +70,7 @@ def calibration(request, card):
     return render(request, 'qie_cards/calibration.html', {'card': p, 'cals': list(calibrations)})
 
 def calResults(request, card, group):
-    """ This displays details about tests on a card """
+    """ This displays the calibration results for a card """
     if len(card) > 7:
         try:
             p = QieCard.objects.get(uid__endswith=card)
@@ -105,7 +105,7 @@ def calResults(request, card, group):
                                                          })
 
 def calPlots(request, card, group):
-    """ This displays details about tests on a card """
+    """ This displays the calibration plots for a card """
     if len(card) > 7:
         try:
             p = QieCard.objects.get(uid__endswith=card)
@@ -174,7 +174,7 @@ def stats(request):
     return render(request, 'qie_cards/stats.html', statistics)
 
 def detail(request, card):
-    """ This displays details about tests on a card """
+    """ This displays the overview of tests for a card """
     if len(card) > 7:
         try:
             p = QieCard.objects.get(uid__endswith=card)
@@ -265,7 +265,7 @@ class PlotView(generic.ListView):
         return list(Test.objects.all())
 
 def testDetail(request, card, test):
-    """ This displays details about tests on a card """
+    """ This displays details about a specific test for a card """
     if len(card) > 7:
         try:
             p = QieCard.objects.get(uid__endswith=card)
