@@ -1,7 +1,6 @@
 {% extends "qie_cards/base.html" %}
 
 {% block title %}{{card.barcode}}{% endblock %}
-
 {% block head %}
 <style>
     .forced{
@@ -42,20 +41,34 @@
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
 
-<div class="row" align="left">
-    <div class="col-md-2" style="padding-left:50px;">
-      <h4>Barcode:</h4>
-      <h4>UID:</h4>
-      <h4>Bridge Firmware:</h4>
-      <h4>Igloo Firmware:</h4>
-    </div>
-    <div class="col-md-4">
-      <h4>{{card.barcode}}</h4>
-      <h4>{{card.get_uid_flipped}}</h4>
-      <h4>{{card.get_bridge_ver}}</h4>
-      <h4>{{card.get_igloo_ver}}</h4>
-    </div>
-  </div><br>
+<!-- Card Info Table -->
+<table id="cardinfo" class="table" style="margin-left:50px; font-size:30px;" cellspacing="0" width="50%">
+    <tbody>
+        <div id="accordion" class="collapse">
+        <tr>
+            <td>Barcode:</td>
+            <td>{{card.barcode}}</td>
+            <td>-----</td>
+        </tr>
+        <tr>
+            <td>Unique ID:</td>
+            <td>{{card.get_uid_mac}}</td>
+            <td>({{card.get_uid_flipped}})</td>
+        </tr>
+        <tr>
+            <td>Bridge FW:</td>
+            <td>{{card.get_bridge_ver_hex}}</td>
+            <td>({{card.get_bridge_ver}})</td>
+        </tr>
+        <tr>
+            <td>Igloo FW:</td>
+            <td>{{card.get_igloo_ver_hex}}</td>
+            <td>({{card.get_igloo_ver}})</td>
+        </tr>
+        </div>
+    </tbody>
+</table>
+
 <div class="row" style="padding-left:25px;">
     <div class="col-md-12">
         <h3>{{test}}</h3>

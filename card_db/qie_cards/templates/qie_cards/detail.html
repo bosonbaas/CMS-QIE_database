@@ -29,14 +29,22 @@
         width: 400px;
         -moz-border-radius: 4px;
         -webkit-border-radius: 4px;
-        border-radius: 4px;
     }
+table.info {
+    width : 1200px;
+    table-layout : fixed;
+    border-collapse : collapse;
+}
+td {
+    padding : 5px;
+}
+table, td, th {
+    border : 1px solid white;
+}
 </style>
 {% endblock %}
 
-
 {% block content %}
-<!-- Card Info Table -->
 <div class="row" align="left" style="padding-left:50px;">
     <h3>
         QIE Card Overview
@@ -46,22 +54,34 @@
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C"></div>
 </div><br>
 
-<table id="cardinfo" class="table" style="margin-left:50px; font-size:30px;" cellspacing="0" width="50%">
+<!-- QIE Card Info Table -->
+<table id="cardinfo" class="info" style="margin-left:50px; font-size:30px;">
+    <col width="25%">
+    <col width="30%">
+    <col width="45%">
     <tbody>
         <div id="accordion" class="collapse">
         <tr>
             <td>Status:</td>
             <td class={{status.css}}>{{status.banner}}</td>
             <td class={{status.css}}>{{status.passed}}/{{status.total}} tests passing</td>
+        </tr>
         <tr>
             <td>Barcode:</td>
             <td>{{card.barcode}}</td>
-            <td>-----</td>
+            <td>({{card.get_bar_uid}})</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Readout Module:</td>
+            <!-- <td>{{rm}}<span style="display:inline-block; width:30px"></span><a href="https://nbay11.fnal.gov/rm/{{rm}}">[link to RM]</a></td> -->
+            <td><a href="https://nbay11.fnal.gov/rm/{{rm}}">{{rm}}</a></td>
+            <td>Slot {{rm_slot}}</td>
         </tr>
         <tr>
             <td>Unique ID:</td>
             <td>{{card.get_uid_mac}}</td>
-            <td>({{card.get_uid_flipped}})</td>
+            <td>({{card.get_uid_split}})</td>
         </tr>
         <tr>
             <td>Bridge FW:</td>
@@ -81,8 +101,8 @@
     <h3>Comments:</h3>
     <div id="breakLine" style="height:2px;width:25%;background-color:#E74C3C;"></div>
     <p style="width:100%; white-space: pre-wrap;">{{card.comments | default:"No comment given"}}</p>
-
 </div>
+
 <div class="row" align="left" style="padding-left:100px;width:50%">
     <form action="" method="post">
         {% csrf_token %}
