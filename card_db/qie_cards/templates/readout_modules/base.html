@@ -59,6 +59,28 @@
                 </ul>
                 {% endblock %} 
             </div>
+            <!-- Barcode Search -->
+            <form class="navbar-form navbar-left" action="#" role="search">
+              <div class="form-group">
+                <div class="input-group">
+                  <input class="form-control" id="navbarInputBarcode" type="search" placeholder="Search Barcode">
+                  <span class="input-group-btn">
+                    <button type="submit" onclick="searchBarcode(event)" class="btn"><span class="fui-search"></span></button>
+                  </span>
+                </div>
+              </div>
+            </form>
+            <!-- UID Search -->
+            <form class="navbar-form navbar-right" action="#" role="search">
+              <div class="form-group">
+                <div class="input-group">
+                  <input class="form-control" id="navbarInputUID" type="search" placeholder="Search UID">
+                  <span class="input-group-btn">
+                    <button type="submit" onclick="searchUID(event)" class="btn"><span class="fui-search"></span></button>
+                  </span>
+                </div>
+              </div>
+            </form>
         </div>
     </div>
    
@@ -78,7 +100,28 @@
 {% endblock %}
 
 {% block script %}
-
+<script>
+function searchBarcode(e){
+    rmBarcode = document.getElementById("navbarInputBarcode").value;
+    if( rmBarcode.length < 1 || rmBarcode.length > 4 ){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/rm/error";
+    } else {
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/rm/" + rmBarcode;
+    }
+}
+function searchUID(e){
+    rmUID = document.getElementById("navbarInputUID").value;
+    if( rmUID.length < 6 || rmUID.length > 27 ){
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/rm/error";
+    } else {
+        e.preventDefault();
+        document.location.href = "https://nbay11.fnal.gov/rm/uid/" + rmUID;
+    }
+}
+</script>
 {% endblock %}
 
 </body>
