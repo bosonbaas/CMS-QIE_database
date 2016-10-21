@@ -60,7 +60,7 @@ class ReadoutAdmin(admin.ModelAdmin):
     """ Provides the layout for ReadoutModule editing """
     
     fieldsets = [
-        (None, {'fields': ['assembler', 'date', 'rm_number']}),
+        (None, {'fields': ['assembler', 'date', 'rm_number', 'comments']}),
         ("Card Pack", {'fields':['card_pack_number',
                                  'card_1',
                                  'card_2',
@@ -106,8 +106,9 @@ class CUAdmin(admin.ModelAdmin):
                                   'pindiode_laser3',
                                   'pindiode_laser4']}),
         ("Connections", {'fields':['sma_connector_mounted',
-                                   'quartz_fiber_inserted',
-                                   'hirose_signal_connected']}),
+                                   'quartz_fiber_connected',
+                                   'hirose_signal_connected',
+                                   'reference_cable_connected']}),
         ("Quality Control", {'fields':['qc_complete']}),
         ("Upload", {'fields':['upload']}),
         ]

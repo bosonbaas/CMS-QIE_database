@@ -21,9 +21,20 @@ class CatalogView(generic.ListView):
     
     template_name = 'qie_cards/catalog.html'
     context_object_name = 'barcode_list'
+    cards = QieCard.objects.all().order_by('barcode')
+    num_cards = len(cards)
     def get_queryset(self):
-        return QieCard.objects.all().order_by('barcode')
+        return self.cards
+#    def length(self):
+#        return len(self.cards)
 
+def catalog(request):
+    """ This displays a list of all QIE cards """
+    cards = QieCard.objects.all().order_by('barcode')
+    count = len(cards)
+
+    return render(request, 'qie_cards/catalog.html', {'barcode_list': cards,
+                                                      'total_count': count})
 
 def summary(request):
     """ This displays a summary of the cards """
@@ -179,12 +190,26 @@ def detail(request, card):
         try:
             p = QieCard.objects.get(uid__endswith=card)
         except QieCard.DoesNotExist:
-            raise Http404("QIE card with unique id " + str(card) + " does not exist")
+            #raise Http404("QIE card with unique id " + str(card) + " does not exist")
+            return render(request, 'qie_cards/error.html')
     else:
         try:
             p = QieCard.objects.get(barcode__endswith=card)
         except QieCard.DoesNotExist:
-            raise Http404("QIE card with barcode " + str(card) + " does not exist")
+            #raise Http404("QIE card with barcode " + str(card) + " does not exist")
+            return render(request, 'qie_cards/error.html')
+
+    """ A script will update Readout Modules every hour. """
+    p.update_readout_module()
+    if p.readout_module < 0:
+        rm = "Not Installed"
+    else:
+        rm = p.readout_module
+    
+    if p.readout_module_slot < 0:
+        rm_slot = "Not Installed"
+    else:
+        rm_slot = p.readout_module_slot
 
     tests = Test.objects.all()
     locations = Location.objects.filter(card=p)
@@ -239,6 +264,8 @@ def detail(request, card):
             Location.objects.create(geo_loc=request.POST.get("location"), card=p)
 
     return render(request, 'qie_cards/detail.html', {'card': p,
+                                                     'rm' : rm,
+                                                     'rm_slot' : rm_slot,
                                                      'attempts':attempts,
                                                      'locations':locations,
                                                      'status':status,
@@ -351,7 +378,12 @@ def fieldView(request):
         item["fields"] = []
         for field in fields:
             if field == "last location":
-                item["fields"].append(card.location_set.all().order_by("date_received").reverse()[0].geo_loc)
+                loc_list = card.location_set.all()
+                if len(loc_list) == 0:
+                    item["fields"].append("No Locations Recorded")
+                else:
+                    #item["fields"].append(len(card.location_set.all()))
+                    item["fields"].append(card.location_set.all().order_by("date_received").reverse()[0].geo_loc)
             elif field == "Card Status":
                 if cardStat[i]["num_failed"] != 0:
                     item["fields"].append("FAILED")
@@ -368,3 +400,4 @@ def fieldView(request):
         items.append(item)
 
     return render(request, 'qie_cards/fieldView.html', {'fields': fields, "items": items, "options": options})
+

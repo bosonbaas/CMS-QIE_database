@@ -5,7 +5,8 @@ from . import card_views as views
 from card_db.settings import MEDIA_ROOT
 
 urlpatterns = [
-    url(r'^catalog$', views.CatalogView.as_view(), name='catalog'),
+    #url(r'^catalog$', views.CatalogView.as_view(), name='catalog'),
+    url(r'^catalog$', views.catalog, name='catalog'),
     url(r'^summary$', views.summary, name='summary'),
     url(r'^testers$', views.TestersView.as_view(), name='testers'),
     url(r'^stats$', views.stats, name='stats'),

@@ -17,6 +17,15 @@ class CatalogView(generic.ListView):
     def get_queryset(self):
         return CalibrationUnit.objects.all().order_by('cu_number')
 
+def catalog(request):
+    """ This displays a list of all calibration units """
+
+    cus = CalibrationUnit.objects.all().order_by('cu_number')
+    count = len(cus)
+
+    return render(request, 'calibration_units/catalog.html', {'cu_list': cus,
+                                                              'total_count': count})
+
 def detail(request, cu_number):
     """ This displays details about a calibration unit """
     try:

@@ -65,37 +65,65 @@ def validate_uid(uid):
 class Test(models.Model):
     """ This model stores information about each type of test """
 
-    name            = models.CharField(max_length=100, default="")
-    abbreviation    = models.CharField(max_length=100, default="", unique=True)
-    description     = models.TextField(max_length=1500, default="")
-    required        = models.BooleanField(default=True)
+    name            = models.CharField(max_length=100, default="")                  # The displayed name of the test
+    abbreviation    = models.CharField(max_length=100, default="", unique=True)     # The abbreviation of the test name (w/out spaces)
+    description     = models.TextField(max_length=1500, default="")                 # The verbose test description
+    required        = models.BooleanField(default=True)                             # Whether the test is required to pass
 
     def __str__(self):
         return self.name
 
 
 class Tester(models.Model):
-    """ This model stores information about the testers of the cards """
+    """ This model stores information about a tester of the cards """
 
-    username    = models.CharField(max_length=100, default="", unique=True)
-    email       = models.EmailField(max_length=255)
-    affiliation = models.CharField('Affiliation', max_length=200, default="") 
+    username    = models.CharField(max_length=100, default="", unique=True)     # The full name of the tester
+    email       = models.EmailField(max_length=255)                             # The email address of the tester
+    affiliation = models.CharField('Affiliation', max_length=200, default="")   # The university/lab affiliation of the tester
 
     def __str__(self):
        return self.username
 
 
 class QieCard(models.Model):
-    """ This model stores information about the different QIE cards """
+    """ This model stores information about a QIE card (charge integrator and encoder)"""
 
-    barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")
-    uid     = models.CharField(max_length=21, blank=True, default="")
-    bridge_major_ver    = models.CharField(max_length=4, default="", blank=True)
-    bridge_minor_ver    = models.CharField(max_length=4, default="", blank=True)
-    bridge_other_ver    = models.CharField(max_length=8, default="", blank=True)
-    igloo_major_ver     = models.CharField(max_length=4, default="", blank=True)
-    igloo_minor_ver     = models.CharField(max_length=4, default="", blank=True)
-    comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    barcode = models.CharField(max_length=7, validators=[validate_card_id], unique=True, default="")    # The data stored on the barcode sticker
+    uid     = models.CharField(max_length=21, blank=True, default="")               # The data stored on the UID chip
+    bridge_major_ver    = models.CharField(max_length=4, default="", blank=True)    # The major version of the Bridge FPGA
+    bridge_minor_ver    = models.CharField(max_length=4, default="", blank=True)    # The minor version of the Bridge FPGA
+    bridge_other_ver    = models.CharField(max_length=8, default="", blank=True)    # The other version of the Bridge FPGA
+    igloo_major_ver     = models.CharField(max_length=4, default="", blank=True)    # The major version of the IGLOO FPGA
+    igloo_minor_ver     = models.CharField(max_length=4, default="", blank=True)    # The minor version of the IGLOO FPGA
+    readout_module      = models.IntegerField('RM №', default=-1)                   
+    readout_module_slot = models.IntegerField('RM Slot', default=-1)                
+    comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")   # Any comments pertaining to the
+                                                                                                    # testing/appearance of the card
+
+    def update_readout_module(self):
+        """ Sets the readout module and slot for a QIE card. """
+        for rm in ReadoutModule.objects.all():
+            if rm.card_1 == self:
+                self.readout_module = rm.rm_number
+                self.readout_module_slot = 1
+                self.save()
+                break
+            if rm.card_2 == self:
+                self.readout_module = rm.rm_number
+                self.readout_module_slot = 2
+                self.save()
+                break
+            if rm.card_3 == self:
+                self.readout_module = rm.rm_number
+                self.readout_module_slot = 3
+                self.save()
+                break
+            if rm.card_4 == self:
+                self.readout_module = rm.rm_number
+                self.readout_module_slot = 4
+                self.save()
+                break
+
 
     def get_uid_split(self):
         """ Parses the raw UID into split form (first 4 bytes, last 4 bytes) """
@@ -114,7 +142,7 @@ class QieCard(models.Model):
         return "0x" + familyName + " 0x" + checkSum
 
     def get_uid_mac(self):
-        """ Parses the raw UID into a mac-address format """
+        """ Parses the raw UID into a mac-address format with colons """
         if self.uid == "":
             return "Not Uploaded"
         raw = self.uid[2:]
@@ -125,13 +153,13 @@ class QieCard(models.Model):
         return refined[:17]
 
     def get_uid_mac_simple(self):
-        """ Parses the raw UID into a mac-address format """
+        """ Parses the raw UID into 3 unique bytes (6 hex digits) """
         if self.uid == "":
-            return "Not Uploaded"
+            return "000000"
         if len(self.uid) != 16:
             return "Complete Unique ID not 8 bytes long (16 characters)."
-        raw = self.uid[2:-2]
-        return raw 
+        raw = self.uid[8:-2]
+        return raw.upper()
     
     def get_bar_uid(self):
         """ Returns the unique 3-digit code of this card's ID """
@@ -190,25 +218,25 @@ def logs_location(upload, original_filename):
 class Attempt(models.Model):
     """ This model stores information about each testing attempt """
 
-    card        = models.ForeignKey(QieCard, on_delete=models.CASCADE)      # The card this attempt was on
-    plane_loc   = models.CharField(max_length=LOCATION_LENGTH, default="")
-    test_type   = models.ForeignKey(Test, on_delete=models.PROTECT)         # The test this attempt was of
-    attempt_number  = models.IntegerField(default=1)
+    card        = models.ForeignKey(QieCard, on_delete=models.CASCADE)      # The card object which this test is on
+    plane_loc   = models.CharField(max_length=LOCATION_LENGTH, default="")  # The location on the backplane where the test occured
+    test_type   = models.ForeignKey(Test, on_delete=models.PROTECT)         # The test object which this test is of
+    attempt_number  = models.IntegerField(default=1)                        # The number of this attempt on this card
     tester      = models.ForeignKey(Tester, on_delete=models.PROTECT)       # the person who enterd this attempt
-    date_tested = models.DateTimeField('date tested')
-    num_passed  = models.IntegerField(default=-1)
-    num_failed  = models.IntegerField(default=-1)
-    revoked     = models.BooleanField(default=False)
-    overwrite_pass  = models.BooleanField(default=False)
-    temperature = models.FloatField(default=-999.9)
-    humidity    = models.FloatField(default=-999.9)
-    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    image       = models.ImageField(upload_to=images_location, default="default.png")
+    date_tested = models.DateTimeField('date tested')       # The date this test finished
+    num_passed  = models.IntegerField(default=-1)           # The number of times this test passed
+    num_failed  = models.IntegerField(default=-1)           # The number of times this test failed
+    revoked     = models.BooleanField(default=False)        # Whether this test series is revoked
+    overwrite_pass  = models.BooleanField(default=False)    # Whether this test was overwritten as a pass
+    temperature = models.FloatField(default=-999.9)         # The temperature of the card during the test
+    humidity    = models.FloatField(default=-999.9)         # The numidity of the card during the test
+    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")   # Any comments pertaining to this test
+    image       = models.ImageField(upload_to=images_location, default="default.png")       # Any image associated with this test
 
-    log_file        = models.FileField(upload_to=logs_location, default='default.png')
-    log_comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    log_file        = models.FileField(upload_to=logs_location, default='default.png')          # The log file from whence this test was uploaded    
+    log_comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")   # Any comments pertaining to the log file
 
-    hidden_log_file = models.FileField(upload_to=logs_location, default='default.png')
+    hidden_log_file = models.FileField(upload_to=logs_location, default='default.png')      # The verbose log file, only used for web-page generation
 
     def passed_all(self):
         return (self.num_failed == 0)
@@ -253,48 +281,72 @@ class Attempt(models.Model):
 
 
 class ReadoutModule(models.Model):
-
-    ODU_TYPE_OPTIONS = [
+    """ This model stores information about an RM (Readout Module). """
+    ODU_TYPE_OPTIONS = [                    # Optical Decoder Unit (ODU) types 1, 2, 3, 4.
                         ("1", "1"),
                         ("2", "2"),
                         ("3", "3"),
                         ("4", "4"),
                        ]
-    MOUNTING_OPTIONS = [
+    MOUNTING_OPTIONS = [                    # SiPM Mounting Board types 1/3, 2/4.
                         ("1/3", "1/3"),
                         ("2/4", "2/4"),
                        ]
     
-    assembler   = models.CharField('Assembler', max_length=50, default="")
-    date        = models.DateTimeField('Date Received', default=timezone.now)
-    rm_number   = models.IntegerField('RM №', default=-1)
-    card_pack_number    = models.IntegerField('CardPack №', default=-1)
-    card_1  = models.ForeignKey(QieCard, verbose_name='QIE card 1 №', related_name="rm_1", on_delete=models.PROTECT)
-    card_2  = models.ForeignKey(QieCard, verbose_name='QIE card 2 №', related_name="rm_2", on_delete=models.PROTECT)
-    card_3  = models.ForeignKey(QieCard, verbose_name='QIE card 3 №', related_name="rm_3", on_delete=models.PROTECT)
-    card_4  = models.ForeignKey(QieCard, verbose_name='QIE card 4 №', related_name="rm_4", on_delete=models.PROTECT)
-    mtp_optical_cable   = models.CharField('1 MTP to 8 LC optical cable №', max_length=50, default="")
-    sipm_control_card   = models.IntegerField('1 SiPM Control Card with BV mezzanine №', default=-1)
+    assembler   = models.CharField('Assembler', max_length=50, default="")      # The name of the assembler of the RM
+    date        = models.DateTimeField('Date Received', default=timezone.now)   # The date on which the RM was received
+    rm_number   = models.IntegerField('RM №', default=-1)                       # The number of the RM
+    card_pack_number    = models.IntegerField('CardPack №', default=-1)         # The cardpack number of the RM
+    rm_uid  = models.CharField(max_length=27, blank=True, default="")           # The data from the UID chip on the RM
+    card_1  = models.ForeignKey(QieCard, verbose_name='QIE card 1 №', related_name="rm_1", on_delete=models.PROTECT)    # The QIE Card in Slot 1 of the RM 
+    card_2  = models.ForeignKey(QieCard, verbose_name='QIE card 2 №', related_name="rm_2", on_delete=models.PROTECT)    # The QIE Card in Slot 2 of the RM
+    card_3  = models.ForeignKey(QieCard, verbose_name='QIE card 3 №', related_name="rm_3", on_delete=models.PROTECT)    # The QIE Card in Slot 3 of the RM
+    card_4  = models.ForeignKey(QieCard, verbose_name='QIE card 4 №', related_name="rm_4", on_delete=models.PROTECT)    # The QIE Card in Slot 4 of the RM
+    mtp_optical_cable   = models.CharField('1 MTP to 8 LC optical cable №', max_length=50, default="")                  # MTP Optical cable number used in RM
+    sipm_control_card   = models.IntegerField('1 SiPM Control Card with BV mezzanine №', default=-1)                    # SiPM Control Card number used in RM
     
-    lv_assembly = models.IntegerField('LV Assembly Number', default=-1)
+    lv_assembly = models.IntegerField('LV Assembly Number', default=-1)                                                 # Low Voltage Assembly of 6 DC-DC converters for RM
 
-    therm_assembly  = models.IntegerField('Thermal Assembly Number', default=-1)
+    therm_assembly  = models.IntegerField('Thermal Assembly Number', default=-1)                                        # Thermal assembly number for RM
 
-    sipm_array_1    = models.IntegerField('SiPM Array S10943-4732 № (BV1-8)', default=-1)
-    sipm_array_2    = models.IntegerField('SiPM Array S10943-4732 № (BV17-24)', default=-1)
-    sipm_array_3    = models.IntegerField('SiPM Array S10943-4732 № (BV25-32)', default=-1)
-    sipm_array_4    = models.IntegerField('SiPM Array S10943-4732 № (BV33-40)', default=-1)
-    sipm_array_5    = models.IntegerField('SiPM Array S10943-4732 № (BV41-48)', default=-1)
-    mixed_sipm_array    = models.IntegerField('Mixed SiPM array S10943-4733 № (BV9-16)', default=-1)
-    sipm_mounting   = models.CharField('SiPM Mounting Board Type', choices=MOUNTING_OPTIONS, max_length=3, default="")
-    odu_type    = models.CharField('ODU type', choices=ODU_TYPE_OPTIONS, max_length=3, default="")
-    odu_number  = models.IntegerField('ODU №', default=-1)
+    sipm_array_1    = models.IntegerField('SiPM Array S10943-4732 № (BV1-8)', default=-1)                               # SiPM Array 1 for BV 1-8
+    sipm_array_2    = models.IntegerField('SiPM Array S10943-4732 № (BV17-24)', default=-1)                             # SiPM Array 2 for BV 17-24
+    sipm_array_3    = models.IntegerField('SiPM Array S10943-4732 № (BV25-32)', default=-1)                             # SiPM Array 3 for BV 25-32
+    sipm_array_4    = models.IntegerField('SiPM Array S10943-4732 № (BV33-40)', default=-1)                             # SiPM Array 4 for BV 33-40
+    sipm_array_5    = models.IntegerField('SiPM Array S10943-4732 № (BV41-48)', default=-1)                             # SiPM Array 5 for BV 41-48
+    mixed_sipm_array    = models.IntegerField('Mixed SiPM array S10943-4733 № (BV9-16)', default=-1)                    # SiPM Array Mixed for BV 9-16
+    sipm_mounting   = models.CharField('SiPM Mounting Board Type', choices=MOUNTING_OPTIONS, max_length=3, default="")  # SiPM Mounting Board for RM
+    odu_type    = models.CharField('ODU type', choices=ODU_TYPE_OPTIONS, max_length=3, default="")                      # ODU (Optical Decoder Unit) type for RM
+    odu_number  = models.IntegerField('ODU №', default=-1)                                                              # ODU (Optical Decoder Unit) number for RM
     
     minsk       = models.IntegerField('White box with RM mechanics from Minsk №', default=-1)
     
-    dcdc_output = models.CharField('Output of 5V DC-DC', max_length=50, default="")
-    upload      = models.FileField('Image Upload', upload_to='readout_module/', default='default.png')
+    dcdc_output = models.CharField('Output of 5V DC-DC', max_length=50, default="")                                     # Measured voltage of 5V output of DC-DC converter
+    upload      = models.FileField('Image Upload', upload_to='readout_module/', default='default.png')                  # Image of RM assembly form
+    comments    = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")                               # Initial comments given when uploading RM to database
 
+    def update(self):
+        """ Update RM Unique ID """
+        uid = ""
+        uid += self.card_1.get_uid_mac_simple() + "_"
+        uid += self.card_2.get_uid_mac_simple() + "_" 
+        uid += self.card_3.get_uid_mac_simple() + "_" 
+        uid += self.card_4.get_uid_mac_simple() 
+        self.rm_uid = uid[:27]
+        self.save()
+        """ Update RM Number for each QIE Card """
+        self.card_1.readout_module = self.rm_number 
+        self.card_1.readout_module_slot = 1
+        self.card_1.save()
+        self.card_2.readout_module = self.rm_number
+        self.card_2.readout_module_slot = 2
+        self.card_2.save()
+        self.card_3.readout_module = self.rm_number
+        self.card_3.readout_module_slot = 3
+        self.card_3.save()
+        self.card_4.readout_module = self.rm_number
+        self.card_4.readout_module_slot = 4
+        self.card_4.save()
 
     def __str__(self):
         return str(self.rm_number)
@@ -356,49 +408,77 @@ class RMBiasVoltage(models.Model):
 class CalibrationUnit(models.Model):
     """ This model stores information about a particular Calibration Unit (CU). """
 
-    assembler   = models.CharField('Assembler', max_length=50, default="")
-    date        = models.DateTimeField('Date of Assembly', default=timezone.now)
-    place       = models.CharField('Location of Assembly', max_length=50, default="")
-    cu_number   = models.IntegerField('Calibration Unit №', default=-1)
-    qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)
-    qie_adapter      = models.IntegerField('QIE Adapter №', default=-1)
-    pulser_board     = models.IntegerField('Pulser Board №', default=-1)
-    optics_box       = models.IntegerField('Optics Box №', default=-1)
-    pindiode_led1    = models.IntegerField('Pindiode_LED1 №', default=-1)
-    pindiode_led2    = models.IntegerField('Pindiode_LED2 №.', default=-1)
-    pindiode_laser1  = models.IntegerField('Pindiode board_laser1 №', default=-1)
-    pindiode_laser2  = models.IntegerField('Pindiode board_laser2 №', default=-1)
-    pindiode_laser3  = models.IntegerField('Pindiode board_laser3 №', default=-1)
-    pindiode_laser4  = models.IntegerField('Pindiode board_laser4 №', default=-1)
-    sma_connector_mounted = models.BooleanField('SMA Connector Mounted', default=False)
-    quartz_fiber_inserted = models.BooleanField('Quartz Fiber Inserted', default=False)
-    hirose_signal_connected = models.BooleanField('Hirose Signal Connected', default=False)
-    reference_cable_connected = models.BooleanField('Reference Cable Conncected', default=False)
-    qc_complete      = models.BooleanField('QC Complete', default=False)
-    upload           = models.FileField('QC Data File', upload_to='cu_calibration/', default='default.png')
+    assembler   = models.CharField('Assembler', max_length=50, default="")                                      # Assembler of CU
+    date        = models.DateTimeField('Date of Assembly', default=timezone.now)                                # Date of assembly
+    place       = models.CharField('Location of Assembly', max_length=50, default="")                           # Location of assembly
+    cu_number   = models.IntegerField('Calibration Unit №', default=-1)                                         # CU number
+    qie_card    = models.ForeignKey(QieCard, verbose_name='QIE Card №', on_delete=models.PROTECT)               # QIE Card installed in CU, barcode 0601XXX
+    qie_adapter      = models.IntegerField('QIE Adapter №', default=-1)                                         # QIE adapter number
+    pulser_board     = models.IntegerField('Pulser Board №', default=-1)                                        # Pulser board installed in CU
+    optics_box       = models.IntegerField('Optics Box №', default=-1)                                          # Optics box in CU
+    pindiode_led1    = models.IntegerField('Pindiode_LED1 №', default=-1)                                       # Pin diode for LED 1
+    pindiode_led2    = models.IntegerField('Pindiode_LED2 №.', default=-1)                                      # Pin diode for LED 2
+    pindiode_laser1  = models.IntegerField('Pindiode board_laser1 №', default=-1)                               # Pin diode laser 1
+    pindiode_laser2  = models.IntegerField('Pindiode board_laser2 №', default=-1)                               # Pin diode laser 2
+    pindiode_laser3  = models.IntegerField('Pindiode board_laser3 №', default=-1)                               # Pin diode laser 3
+    pindiode_laser4  = models.IntegerField('Pindiode board_laser4 №', default=-1)                               # Pin diode laser 4
+    sma_connector_mounted = models.BooleanField('SMA Connector Mounted', default=False)                         # Confirmation that the SMA Connector is mounted
+    quartz_fiber_connected = models.BooleanField('Quartz Fiber Connected', default=False)                       # Confirmation that the Quartz Fiber is connected
+    hirose_signal_connected = models.BooleanField('Hirose Signal Connected', default=False)                     # Confirmation that the Hirose Signal is connected
+    reference_cable_connected = models.BooleanField('Reference Cable Conncected', default=False)                # Confirmation that the Reference Cable is connected
+    qc_complete      = models.BooleanField('QC Complete', default=False)                                        # Confirmation that Quality Control has been completed for the CU
+    upload           = models.FileField('QC Data File', upload_to='cu_calibration/', default='default.png')     # Uploaded Quality Control data file for CU
 
     def __str__(self):
         return str(self.cu_number)
-
 
 class SipmControlCard(models.Model):
     """ This model stores information about a particular SiPM Control Card."""
     
     sipm_control_card  = models.IntegerField('SiPM Control Card №', default=-1)
     bv_converter_card  = models.IntegerField('BV Converter Card №', default=-1)
-    comments            = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
-    upload              = models.FileField('Calibration Data File', upload_to='sipm_control_card', default='default.png')
+    rm_number          = models.IntegerField('Readout Module №', default=-1)
+    comments           = models.TextField(max_length=MAX_COMMENT_LENGTH, blank=True, default="")
+    upload             = models.FileField('Calibration Data File', upload_to='sipm_control_card', default='default.png')
+
+    def get_rm(self):
+        if self.rm_number > 0:
+            return self.rm_number
+        else:
+            return "Not Installed"
+
+    def get_calibration_data(self):
+        data = []
+        f = self.upload
+        f.open(mode='rb')
+        for line in f.readlines():
+            # In each line, the first two values are Card ID and Channel, which we don't convert to floats.
+            if line != '\n':
+                items = line[:-2].split(',')
+                final = []
+                final.append(int(items[0][3:]))
+                final.append(int(items[1]))
+                final = final + list(float(a) for a in items[2:])
+                data.append(final)
+        f.close()
+        return data[:48]
 
     def __str__(self):
         return str(self.sipm_control_card)
 
-
 class Location(models.Model):
     """ This model stores information about a particular location where a card has been """
 
-    card = models.ForeignKey(QieCard, on_delete=models.CASCADE)
-    date_received = models.DateTimeField('date received', default=timezone.now)
-    geo_loc = models.CharField('Location',max_length=200, default="")
+    card = models.ForeignKey(QieCard, on_delete=models.CASCADE)                 # The card which the location refers to
+    date_received = models.DateTimeField('date received', default=timezone.now) # The date the card was received at this location
+    geo_loc = models.CharField('Location',max_length=200, default="")           # The geographical location of this card
+
+class RmLocation(models.Model):
+    """ This model stores information about Readout Module location history """
+
+    rm = models.ForeignKey(ReadoutModule, on_delete=models.CASCADE)              # The RM which the location refers to
+    date_received = models.DateTimeField('date received', default=timezone.now)  # The date the RM was received at this location
+    geo_loc = models.CharField('Location', max_length=200, default="")           # The geographic location of the RM
 
 # An appendage to the save function
 from django.dispatch import receiver
@@ -406,7 +486,7 @@ from django.db.models.signals import pre_save, post_save
 
 
 class QieShuntParams(models.Model): 
-    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE, default=151)
+    card    = models.ForeignKey(QieCard, on_delete=models.CASCADE, default=151)     # The card which the parameters relate to
     group   = models.IntegerField(default=-1)
     date    = models.DateTimeField('Date', default=timezone.now)
     plots       = models.FileField(upload_to=logs_location, default='default.png')
